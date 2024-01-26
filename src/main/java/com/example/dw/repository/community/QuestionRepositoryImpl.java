@@ -1,26 +1,15 @@
 package com.example.dw.repository.community;
 
 import com.example.dw.domain.dto.community.*;
-import com.example.dw.domain.entity.question.QQuestion;
-import com.example.dw.domain.entity.question.QQuestionComment;
 import com.example.dw.domain.form.SearchForm;
-import com.example.dw.domain.form.SearchLocationForm;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.NumberTemplate;
-import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-
-import org.springframework.data.domain.Sort;
-import org.springframework.data.querydsl.QSort;
-import org.springframework.data.querydsl.QuerydslUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
@@ -33,7 +22,6 @@ import static com.example.dw.domain.entity.question.QQuestionComment.questionCom
 import static com.example.dw.domain.entity.question.QQuestionImg.questionImg;
 import static com.example.dw.domain.entity.user.QUserFile.userFile;
 import static com.example.dw.domain.entity.user.QUsers.users;
-import static com.example.dw.domain.entity.walkingMate.QWalkingMate.walkingMate;
 import static java.util.stream.Collectors.*;
 
 
@@ -93,8 +81,6 @@ public class QuestionRepositoryImpl implements QuestionRepositoryCustom {
                         getDynamicSort(searchForm)
                 )
                 .fetch();
-
-
 
 
         List<QuestionListDto> result = new ArrayList<>();
