@@ -16,26 +16,26 @@ const slideWidth = 300; //한개의 슬라이드 넓이
 slides.style.width = slideWidth * slideCount + 'px';
 
 function moveSlide(num) {
-  slides.style.left = -num * 300 + 'px';
-  currentIdx = num;
+    slides.style.left = -num * 300 + 'px';
+    currentIdx = num;
 }
 
 prev.addEventListener('click', function () {
-  /*첫 번째 슬라이드로 표시 됐을때는 
-  이전 버튼 눌러도 아무런 반응 없게 하기 위해 
-  currentIdx !==0일때만 moveSlide 함수 불러옴 */
+    /*첫 번째 슬라이드로 표시 됐을때는
+    이전 버튼 눌러도 아무런 반응 없게 하기 위해
+    currentIdx !==0일때만 moveSlide 함수 불러옴 */
 
-  if (currentIdx !== 0) moveSlide(currentIdx - 1);
+    if (currentIdx !== 0) moveSlide(currentIdx - 1);
 });
 
 next.addEventListener('click', function () {
-  /* 마지막 슬라이드로 표시 됐을때는 
-  다음 버튼 눌러도 아무런 반응 없게 하기 위해
-  currentIdx !==slideCount - 1 일때만 
-  moveSlide 함수 불러옴 */
-  if (currentIdx !== slideCount - 1) {
-    moveSlide(currentIdx + 1);
-  }
+    /* 마지막 슬라이드로 표시 됐을때는
+    다음 버튼 눌러도 아무런 반응 없게 하기 위해
+    currentIdx !==slideCount - 1 일때만
+    moveSlide 함수 불러옴 */
+    if (currentIdx !== slideCount - 1) {
+        moveSlide(currentIdx + 1);
+    }
 });
 
 
@@ -140,9 +140,9 @@ function showQuestionReplyList(questionId,callback){
                 callback(result);
             }
 
-    },error : function(a,b,c){
+        },error : function(a,b,c){
             console.log(c);
-    }
+        }
     })
 
 }
@@ -159,17 +159,17 @@ function replyList(result){
                             <div class="reply-info">
         `;
 
-            if(r.userImgId ==null){
-                text += ` <div class="reply-img"><img src="/img/dogImg02.jpg" alt=""></div>`;
-            }else {
-                text += `<div class="reply-img"><img src="/qnar/qnaUserImg?userImgPath=${r.userImgPath +'/' + r.userImgUuid +'_' + r.userImgName}" alt=""></div>`
-            }
+        if(r.userImgId ==null){
+            text += ` <div class="reply-img"><img src="/img/dogImg02.jpg" alt=""></div>`;
+        }else {
+            text += `<div class="reply-img"><img src="/qnar/qnaUserImg?userImgPath=${r.userImgPath +'/' + r.userImgUuid +'_' + r.userImgName}" alt=""></div>`
+        }
 
-            if(r.userNickName == null){
-                text += `<div class="reply-id">${r.userAccount}</div>`;
-            }else{
-                text +=`<div class="reply-id">${r.userNickName}</div>`;
-            }
+        if(r.userNickName == null){
+            text += `<div class="reply-id">${r.userAccount}</div>`;
+        }else{
+            text +=`<div class="reply-id">${r.userNickName}</div>`;
+        }
         text += `
                  </div>
                             <div class="reply-date"> ${reply.timeForToday(r.questionCommentRd) + (r.questionCommentRd == r.questionCommentMd ? ' 작성' : ' 수정')}</div>
@@ -179,17 +179,17 @@ function replyList(result){
         
                      `;
 
-            if(r.userId == userId){
-                text+= `
+        if(r.userId == userId){
+            text+= `
                         <div class="reply-btns">
                                 <div class="update-reply"><a href="" data-questioncommentid="${r.id}">수정</a></div>
                                 <div class="delete-reply"><a href="" data-questioncommentid="${r.id}">삭제</a></div>
                             </div>
                 `;
 
-            }
+        }
 
-            text += `
+        text += `
                         </div>
                     </div>
             
@@ -249,7 +249,7 @@ $('.reply-list').on('click', '.delete-reply a', function (e){
 $('.reply-list').on('click', '.update-reply a', function (e) {
 
     e.preventDefault();
-        console.log(e.preventDefault());
+    console.log(e.preventDefault());
 
 
     let letterLimit = $(this).closest('.reply').find('.reply-date');
@@ -319,6 +319,4 @@ $('.reply-list').on('click', '.modify-reply-btn', function (){
     })
 
 })
-
-
 

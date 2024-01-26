@@ -1,10 +1,12 @@
 package com.example.dw.repository.freeBoard;
 
+import com.example.dw.domain.dto.admin.UserFileDto;
 import com.example.dw.domain.dto.community.*;
 import com.example.dw.domain.form.SearchForm;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -30,6 +32,7 @@ import static java.util.stream.Collectors.toList;
 public class FreeBoardRepositoryImpl implements FreeBoardRepositoryCustom{
 
     private final JPAQueryFactory jpaQueryFactory;
+    private final EntityManager em;
 
     @Override
     public List<FreeBoardResultDetailDto> findFreeBoardById(Long id) {
@@ -241,90 +244,6 @@ public class FreeBoardRepositoryImpl implements FreeBoardRepositoryCustom{
     }
 
 
-    @Override
-    public Page<MyFreeBoardResultListDto> findAllById(Pageable pageable,Long userId) {
-
-        List<MyFreeBoardDto> contents = jpaQueryFactory
-                .select(new QMyFreeBoardDto(
-                        freeBoard.id,
-                        freeBoard.freeBoardTitle,
-                        freeBoard.freeBoardContent,
-                        users.id,
-                        users.userAccount,
-                        users.userNickName,
-                        userFile.id,
-                        userFile.route,
-                        userFile.name,
-                        userFile.uuid
-                ))
-                .from(freeBoard)
-                .leftJoin(freeBoard.users,users)
-                .leftJoin(users.userFile,userFile)
-                .where(users.id.eq(userId))
-                .orderBy(freeBoard.id.desc())
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
-
-
-        Long counts = jpaQueryFactory
-                .select(freeBoard.count())
-                .from(freeBoard)
-                .where(users.id.eq(userId))
-                .fetchOne();
-
-        List<MyFreeBoardResultListDto> result = contents.stream().map(r ->{
-
-            Long commentCounts = jpaQueryFactory
-                    .select(freeBoardComment.id.count())
-                    .from(freeBoardComment)
-                    .where(freeBoard.id.eq(r.getId()))
-                    .fetchOne();
-
-            System.out.println("[댓글 수 ] : "+ commentCounts);
-
-            List<FreeBoardImgDto> freeBoardImgDtos = jpaQueryFactory
-                    .select(new QFreeBoardImgDto(
-                            freeBoardImg.id,
-                            freeBoardImg.freeBoardImgRoute,
-                            freeBoardImg.freeBoardImgName,
-                            freeBoardImg.freeBoardImgUuid,
-                            freeBoard.id
-                    ))
-                    .from(freeBoardImg)
-                    .leftJoin(freeBoardImg.freeBoard,freeBoard)
-                    .where(freeBoard.id.eq(r.getId()))
-                    .fetch();
-
-            List<FreeBoardImgDto> freeBoardImgDto = freeBoardImgDtos.stream().
-                    map(freeBoardImg -> new FreeBoardImgDto(
-                            freeBoardImg.getId(),
-                            freeBoardImg.getFreeBoardImgRoute(),
-                            freeBoardImg.getFreeBoardImgName(),
-                            freeBoardImg.getFreeBoardImgUuid(),
-                            freeBoardImg.getFreeBoarId()
-                    )).collect(toList());
-
-                return new MyFreeBoardResultListDto(
-                        r.getId(),
-                        r.getFreeBoardTitle(),
-                        r.getFreeBoardContent(),
-                        r.getUserId(),
-                        r.getUserAccount(),
-                        r.getUserNickName(),
-                        r.getUserFileId(),
-                        r.getRoute(),
-                        r.getName(),
-                        r.getUuid(),
-                        commentCounts,
-                        freeBoardImgDto
-                );
-        }).collect(toList());
-
-        System.out.println(result.toString()+" 내가 작성한 자유게시판 입니다.");
-
-    return new PageImpl<>(result,pageable,counts);
-    }
 
     @Override
     public List<FreeBoardDto> findFreeBoardRankByIdId() {
@@ -346,5 +265,50 @@ public class FreeBoardRepositoryImpl implements FreeBoardRepositoryCustom{
                 .limit(3)
                 .fetch();
         return content;
+    }
+
+
+    @Override
+    public Page<MyFreeBoardResultDto> findByUserId(Pageable pageable, Long userId) {
+        System.out.println(userId+ " 조회해야되는 아이디 입니다.");
+        List<MyFreeBoardListDto> query = em.createQuery(
+                "SELECT NEW com.example.dw.domain.dto.community.MyFreeBoardListDto(" +
+                        "f.id, f.freeBoardTitle, f.freeBoardContent, u.id, u.userAccount, u.userNickName, " +
+                        "uf.id, uf.route, uf.uuid, uf.name, " +
+                        "(SELECT COUNT(fc) FROM FreeBoardComment fc WHERE fc.freeBoard.id = f.id) as commentCount, " +
+                        "fi.id, fi.freeBoardImgRoute, fi.freeBoardImgName, fi.freeBoardImgUuid ) " +
+                        "FROM FreeBoard f " +
+                        "LEFT JOIN f.users u " +
+                        "LEFT JOIN u.userFile uf " +
+                        "LEFT JOIN f.freeBoardImg fi " +
+                        "WHERE f.users.id = :userId and fi.id = (select Min(fi2.id) from FreeBoardImg fi2 where f.id = fi2.freeBoard.id) " +
+                        "ORDER BY f.id DESC", MyFreeBoardListDto.class)
+                .setParameter("userId", userId)
+                .getResultList();
+
+        System.out.println(query.toString()+"입니다");
+
+        List<MyFreeBoardResultDto> result =  query.stream().map(
+                o-> new MyFreeBoardResultDto(
+                        o.getId(),
+                        o.getFreeBoardTitle(),
+                        o.getFreeBoardContent(),
+                        o.getUserId(),
+                        o.getUserAccount(),
+                        o.getUserNickName(),
+                        new UserFileDto(o.getUserFileId(),o.getRoute(),o.getName(),o.getUuid(),o.getUserId()),
+                        o.getCommentCount(),
+                        new FreeBoardImgDto(o.getFreeBoardImgId(),o.getFreeBoardImgRoute(),o.getFreeBoardImgName(),o.getFreeBoardImgUuid(),o.getId()))
+        ).collect(toList());
+
+
+        Long count = jpaQueryFactory
+                .select(freeBoard.count())
+                .from(freeBoard)
+                .where(users.id.eq(userId))
+                .fetchOne();
+
+
+        return new PageImpl<>(result,pageable,count);
     }
 }

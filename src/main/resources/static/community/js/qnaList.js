@@ -1,5 +1,6 @@
 import * as list from './module/list.js'
 import  * as page from './module/page.js';
+import * as date from './module/form.js'
 import {listSearchDto} from "./module/list.js";
 
 
@@ -23,6 +24,8 @@ $(document).ready(function (){
     })
 
 
+
+
 })
 
 // 검색버튼
@@ -33,7 +36,7 @@ $('.sbtn').on('click',function (){
 
 function updateStatus(cate){
     searchQnaBoardForm().cate = cate;
-        console.log(searchQnaBoardForm().cate);
+    console.log(searchQnaBoardForm().cate);
     list.listSearchDto(0,searchQnaBoardForm(),'qnar','qnalist',showQnaBoardList);
 
 }
@@ -42,7 +45,7 @@ function updateStatus(cate){
 
 //input에서 검색한 내용 넘겨주기
 function searchQnaBoardForm(){
-   let cate = $("input[name='state']:checked").val();
+    let cate = $("input[name='state']:checked").val();
     let keyword = $('.search-question').val();
     console.log(keyword);
     console.log(cate)
@@ -80,40 +83,76 @@ function showQnaBoardList(result) {
                         <div class="list-content">
                             <div class="list-content-title">${r.questionTitle}
                             </div>
-                            <div class="list-content-content">${r.questionContent}
+                            <div class="list-content-content">
+                                    <div class="list-content-content-detail">
+                                        ${r.questionContent}
+                                    </div>        
                             </div>
                             <div class="list-content-etc">
                                 <div class="list-content-id">
-                                    <div class="list-content-id-img">
-                                        <img src= "/img/dogImg.jpg" alt="">
-                                    </div>
-                                    <span class="userName">${r.userName}</span>
+                        `;
+
+
+        if(r.userFileId == null){
+            console.log("여기다");
+            text +=`   <div class="list-content-id-img">
+                                         <img src= "/img/dogImg.jpg" alt="">
+                                            </div>
+                                     `;
+        }else if(r.userFileId != null){
+
+            text +=`   <div class="list-content-id-img">
+                                                <img src= "/qnar/qnaUserImg?userImgPath=${r.route + '/' + r.uuid + '_' + r.name}" alt="">
+                                            </div>
+                                    `;
+
+        }
+
+
+
+
+        if(r.userNickName ==null){
+            text+=`
+                                    <span class="userName">${r.userAccount}</span>
+                                `;
+
+        }else if(r.userNickName != null){
+            text+=`
+                                    <span class="userName">${r.userNickName}</span>
+                                `;
+        }
+
+        text+=`
                                 </div>
                                 <div class="list-content-reply">
                                     <span>댓글</span>
+                                    `;
+        if(r.commentCount == null ){
+            text += `
+                                    <span class="reply-count">0</span>
+                                    `;}else{
+            text += `
                                     <span class="reply-count">${r.commentCount}</span>
+                                    `;
+        }
+
+        text += `      
                                 </div>
                                 <div class="list-content-time">
                                     <span>${timenow}</span>
                                 </div>
                             </div>
                         </div>
-                `;
+                
 
-                    r.questionImgDtoList.slice(0,1).forEach(e =>{
+<!--                     r.questionImgDtoList.slice(0,1).forEach(e =>{-->
 
-                        text += `
+                        
                               <div class="content-img-box">
                                 <div class="content-img">
-                                    <img src="/qnar/queImg?fileFullPath=${e.questionImgRoute + '/' + e.questionImgUuid + '_' + e.questionImgName}" alt="">
+                                    <img src="/qnar/queImg?fileFullPath=${r.questionImgRoute + '/' + r.questionImgUuid + '_' + r.questionImgName}" alt="">
                                 </div>
                             </div>
-                        
-                        
-                        `;
-                    })
-            text += `
-
                </a>
             `;
     })

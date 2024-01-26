@@ -5,6 +5,7 @@ import com.example.dw.domain.entity.question.QQuestion;
 import com.example.dw.domain.entity.question.QQuestionComment;
 import com.example.dw.domain.form.SearchForm;
 import com.example.dw.domain.form.SearchLocationForm;
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
@@ -23,12 +24,15 @@ import org.springframework.data.querydsl.QuerydslUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.example.dw.domain.entity.question.QQuestion.question;
 import static com.example.dw.domain.entity.question.QQuestionComment.questionComment;
 import static com.example.dw.domain.entity.question.QQuestionImg.questionImg;
+import static com.example.dw.domain.entity.user.QUserFile.userFile;
+import static com.example.dw.domain.entity.user.QUsers.users;
 import static com.example.dw.domain.entity.walkingMate.QWalkingMate.walkingMate;
 import static java.util.stream.Collectors.*;
 
@@ -44,91 +48,92 @@ public class QuestionRepositoryImpl implements QuestionRepositoryCustom {
     @Override
     public Page<QuestionListDto> findQnaListBySearch(Pageable pageable, SearchForm searchForm) {
         //검색어
+        System.out.println(getDynamicSort(searchForm) + "여기닷!");
+
         BooleanExpression keywordTitle = qnatitleEq(searchForm.getKeyword());
 
-        System.out.println(getDynamicSort(searchForm)+"여기닷!");
 
-        //페이징 및 검색조건을 적용하여 question 엔티티 조회
-        List<QuestionDto> content = jpaQueryFactory
-                .select(new QQuestionDto(
+        Long count = getCount(searchForm.getKeyword());
+
+
+
+        List<Tuple> contents = jpaQueryFactory
+                .select(
                         question.id,
                         question.questionTitle,
                         question.questionContent,
                         question.questionRd,
                         question.questionMd,
-                        question.users.id,
-                        question.users.userName
-                ))
-                .from(question)
-                .where( keywordTitle )
+                        users.id,
+                        users.userAccount,
+                        users.userNickName,
+                        jpaQueryFactory.select(
+                                questionComment.count()
+                        )
+                                .from(questionComment)
+                                .leftJoin(questionComment.question, question)
+                                .where(questionComment.question.id.eq(question.id))
+
+                        ,
+                        userFile.id.coalesce(0L),
+                        userFile.route.coalesce("0"),
+                        userFile.name.coalesce("0"),
+                        userFile.uuid.coalesce("0"),
+                        questionImg.id,
+                        questionImg.questionImgRoute,
+                        questionImg.questionImgUuid,
+                        questionImg.questionImgName
+
+                )        .from(question)
+                .leftJoin(question.users, users)
+                .leftJoin(users.userFile,userFile)
+                .leftJoin(question.questionImg,questionImg)
+                .where(keywordTitle)
                 .orderBy(
                         getDynamicSort(searchForm)
-                    )
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
+                )
                 .fetch();
 
-        // 페이징을 위한 전체 데이터 수 조회
-        Long count = getCount(searchForm.getKeyword());
-
-
-        List<QuestionListDto> contents =
-                content.stream().map(questionDto -> {
-
-                    Long commentCount = jpaQueryFactory
-                            .select(questionComment.id.count())
-                            .from(questionComment)
-                            .where(questionComment.question.id.eq(questionDto.getId()))
-                            .fetchOne();
-
-                    System.out.println(commentCount+"댓글수 입니다.");
-
-                    List<QuestionImgDto> questionImgDto = jpaQueryFactory
-                            .select(new QQuestionImgDto(
-                                    questionImg.id,
-                                    questionImg.questionImgRoute,
-                                    questionImg.questionImgName,
-                                    questionImg.questionImgUuid,
-                                    question.id
-                            ))
-                            .from(questionImg)
-                            .leftJoin(questionImg.question, question)
-                            .where(question.id.eq(questionDto.getId()))
-                            .fetch();
-
-                    List<QuestionImgDto> imgDto = questionImgDto.stream()
-                            .map(imgDtos -> new QuestionImgDto(
-                                    imgDtos.getId(),
-                                    imgDtos.getQuestionImgRoute(),
-                                    imgDtos.getQuestionImgName(),
-                                    imgDtos.getQuestionImgUuid(),
-                                    imgDtos.getQuestionId()
-                            ))
-                            .collect(toList());
-
-                    return new QuestionListDto(
-                            questionDto.getId(),
-                            questionDto.getQuestionTitle(),
-                            questionDto.getQuestionContent(),
-                            questionDto.getQuestionRd(),
-                            questionDto.getQuestionMd(),
-                            questionDto.getUserId(),
-                            questionDto.getUserName(),
-                            commentCount,
-                            imgDto
-
-                    );
-                }).collect(Collectors.toList());
 
 
 
-
-        System.out.println(contents.toString()+"리스트 ");
-
+        List<QuestionListDto> result = new ArrayList<>();
 
 
+        for(Tuple tuple : contents){
+            Long queId = tuple.get(question.id);
+            System.out.println(queId+"조건 번호");
+            if(!result.stream().anyMatch(
+                    dto -> dto.getId().equals(queId))){
 
-        return new PageImpl<>(contents, pageable,count);
+                QuestionListDto questionListDto =new QuestionListDto(
+                        tuple.get(question.id),
+                        tuple.get(question.questionTitle),
+                        tuple.get(question.questionContent),
+                        tuple.get(question.questionRd),
+                        tuple.get(question.questionMd),
+                        tuple.get(users.id),
+                        tuple.get(users.userAccount),
+                        tuple.get(users.userNickName),
+                        tuple.get(questionComment.count()),
+                        tuple.get(userFile.id),
+                        tuple.get(userFile.route),
+                        tuple.get(userFile.name),
+                        tuple.get(userFile.uuid),
+                        tuple.get(questionImg.id),
+                        tuple.get(questionImg.questionImgRoute),
+                        tuple.get(questionImg.questionImgUuid),
+                        tuple.get(questionImg.questionImgName)
+                );
+                result.add(questionListDto);
+
+            }
+            System.out.println(tuple.toString()+"  댓글수 입니다.");
+        }
+
+        System.out.println(result+"@@@@@@@@@@@@@");
+
+        return new PageImpl<>(result, pageable, count);
     }
 
 //
@@ -221,80 +226,81 @@ public class QuestionRepositoryImpl implements QuestionRepositoryCustom {
     @Override
     public Page<QuestionListDto> findQnaListById(Pageable pageable,Long userId) {
         System.out.println(userId + "마이페이지 글 조회를 위한 유저아이디 번호입니다");
-        List<QuestionDto> content = jpaQueryFactory
-                .select(new QQuestionDto(
+        // 페이징을 위한 전체 데이터 수 조회
+        Long count = getMypageCount(userId);
+
+        List<Tuple> contents = jpaQueryFactory
+                .select(
                         question.id,
                         question.questionTitle,
                         question.questionContent,
                         question.questionRd,
                         question.questionMd,
-                        question.users.id,
-                        question.users.userName
-                ))
+                        users.id,
+                        users.userAccount,
+                        users.userNickName,
+                        jpaQueryFactory.select(
+                                questionComment.count()
+                        )
+                                .from(questionComment)
+                                .leftJoin(questionComment.question, question)
+                        ,
+                        userFile.id.coalesce(0L),
+                        userFile.route.coalesce("0"),
+                        userFile.name.coalesce("0"),
+                        userFile.uuid.coalesce("0"),
+                        questionImg.id,
+                        questionImg.questionImgRoute,
+                        questionImg.questionImgUuid,
+                        questionImg.questionImgName
+
+                )
                 .from(question)
-                .where(question.users.id.eq(userId))
-                .orderBy(question.id.desc())
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
+                .leftJoin(question.users, users)
+                .leftJoin(users.userFile,userFile)
+                .leftJoin(question.questionImg,questionImg)
+                .where( users.id.eq(userId))
+                .orderBy(
+                        question.id.desc()
+                )
                 .fetch();
 
-        // 페이징을 위한 전체 데이터 수 조회
-        Long count = getMypageCount(userId);
+        List<QuestionListDto> result = new ArrayList<>();
+        System.out.println(contents.toString());
 
+        for(Tuple tuple : contents){
+            Long queId = tuple.get(question.id);
+            System.out.println(queId+"조건 번호");
+            if(!result.stream().anyMatch(
+                    dto -> dto.getId().equals(queId))){
 
-        List<QuestionListDto> contents =
-                content.stream().map(questionDto -> {
-                    Long commentCount = jpaQueryFactory
-                            .select(questionComment.id.count())
-                            .from(questionComment)
-                            .where(questionComment.question.id.eq(questionDto.getId()))
-                            .fetchOne();
+                QuestionListDto questionListDto =new QuestionListDto(
+                        tuple.get(question.id),
+                        tuple.get(question.questionTitle),
+                        tuple.get(question.questionContent),
+                        tuple.get(question.questionRd),
+                        tuple.get(question.questionMd),
+                        tuple.get(users.id),
+                        tuple.get(users.userAccount),
+                        tuple.get(users.userNickName),
+                        tuple.get(questionComment.count()),
+                        tuple.get(userFile.id),
+                        tuple.get(userFile.route),
+                        tuple.get(userFile.name),
+                        tuple.get(userFile.uuid),
+                        tuple.get(questionImg.id),
+                        tuple.get(questionImg.questionImgRoute),
+                        tuple.get(questionImg.questionImgUuid),
+                        tuple.get(questionImg.questionImgName)
+                );
+                result.add(questionListDto);
+            }
 
-                    System.out.println(commentCount+"마이 댓글수 ");
+        }
 
-                    List<QuestionImgDto> questionImgDto = jpaQueryFactory
-                            .select(new QQuestionImgDto(
-                                    questionImg.id,
-                                    questionImg.questionImgRoute,
-                                    questionImg.questionImgName,
-                                    questionImg.questionImgUuid,
-                                    question.id
-                            ))
-                            .from(questionImg)
-                            .leftJoin(questionImg.question, question)
-                            .where(question.id.eq(questionDto.getId()))
-                            .fetch();
+        System.out.println(result+"@@@@@@@@@@@@@");
 
-                    List<QuestionImgDto> imgDto = questionImgDto.stream()
-                            .map(imgDtos -> new QuestionImgDto(
-                                    imgDtos.getId(),
-                                    imgDtos.getQuestionImgRoute(),
-                                    imgDtos.getQuestionImgName(),
-                                    imgDtos.getQuestionImgUuid(),
-                                    imgDtos.getQuestionId()
-                            ))
-                            .collect(toList());
-
-
-                    return new QuestionListDto(
-                            questionDto.getId(),
-                            questionDto.getQuestionTitle(),
-                            questionDto.getQuestionContent(),
-                            questionDto.getQuestionRd(),
-                            questionDto.getQuestionMd(),
-                            questionDto.getUserId(),
-                            questionDto.getUserName(),
-                            commentCount,
-                            imgDto
-                    );
-                }).collect(Collectors.toList());
-
-        contents.forEach(r-> System.out.println(r.getId()+"항목"));
-
-
-
-
-        return new PageImpl<>(contents, pageable,count);
+        return new PageImpl<>(result, pageable, count);
 
 
 
@@ -340,6 +346,40 @@ public class QuestionRepositoryImpl implements QuestionRepositoryCustom {
             default:
                 return question.questionRd.desc();
         }
+    }
+
+
+    @Override
+    public List<QuestionPopularityListDto> findAllByQuestion() {
+
+
+
+        List<QuestionPopularityListDto> result = jpaQueryFactory
+                .select(new QQuestionPopularityListDto(
+                        question.id,
+                        question.questionTitle,
+                        question.questionContent,
+                        question.questionRd,
+                        question.questionMd,
+                        question.questionViewCount,
+                        questionComment.count()
+
+                ))
+                .from(question)
+                .leftJoin(question.questionComment, questionComment)
+                .groupBy(
+                        question.id,
+                        question.questionTitle,
+                        question.questionContent,
+                        question.questionRd,
+                        question.questionMd,
+                        question.questionViewCount
+                )
+                .orderBy(question.questionViewCount.desc())
+                .limit(3)
+                .fetch();
+
+        return result;
     }
 
 

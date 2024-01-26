@@ -20,25 +20,44 @@ public class QuestionListDto {
 
     //유저정보 추가
     private Long userId;
-    private String userName;
+    private String userAccount;
+    private String userNickName;
 
-    private Long commentCount;
+
+    private Long commentCount =0L;
+
+    private Long userFileId;
+    private String route;
+    private String name;
+    private String uuid;
+
+
 
     //사용자 이미지
-    List<QuestionImgDto> questionImgDtoList;
+    private Long questionImgId;
+    private String questionImgRoute;
+    private String questionImgUuid;
+    private String questionImgName;
 
 
     @QueryProjection
-
-    public QuestionListDto(Long id, String questionTitle, String questionContent, LocalDateTime questionRd, LocalDateTime questionMd, Long userId, String userName, Long commentCount, List<QuestionImgDto> questionImgDtoList) {
+    public QuestionListDto(Long id, String questionTitle, String questionContent, LocalDateTime questionRd, LocalDateTime questionMd, Long userId, String userAccount, String userNickName, Long commentCount, Long userFileId, String route, String name, String uuid, Long questionImgId, String questionImgRoute, String questionImgUuid, String questionImgName) {
         this.id = id;
         this.questionTitle = questionTitle;
         this.questionContent = questionContent;
         this.questionRd = questionRd;
         this.questionMd = questionMd;
         this.userId = userId;
-        this.userName = userName;
+        this.userAccount = userAccount;
+        this.userNickName = userNickName;
         this.commentCount = commentCount;
-        this.questionImgDtoList = questionImgDtoList;
+        this.userFileId = userFileId;
+        this.route = route;
+        this.name = name;
+        this.uuid = uuid;
+        this.questionImgId = questionImgId;
+        this.questionImgRoute = questionImgRoute;
+        this.questionImgUuid = questionImgUuid;
+        this.questionImgName = questionImgName;
     }
 }

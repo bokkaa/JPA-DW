@@ -43,40 +43,58 @@ function showUserQnAList(result) {
                             <div  class="list-content-content-detail">
                                 ${r.questionContent}
                             </div>
-                        </div>     <!-- 차후 확인하여 아디값을로 할지 닉네임으로 할지 확인후 조정
-                        if(r.usernicknamee == null ){
-                        text += <div class="list-content-etc">
-                            <div class="list-content-id">
-                                <div class="list-content-id-img"><img src="/img/dogImg.jpg" alt=""></div>
-                                <span>${r.userAccount}</span>
+                        </div> 
+                         `;
+            text +=`<div class="list-content-etc">
+                           <div class="list-content-id">
+                            `;
+            if(r.userFileId == null){
+                text += `
+                  <div class="list-content-id-img"><img src="/mypg/img/b556fdf429d8de25c3acf62f8186ddb9.png" alt=""></div>
+                                    `;
+
+            }else if(r.userFileId != null){
+
+                    text += `
+                    <div class="list-content-id-img"><img src="/mypgs/userImg?fileFullPath=${r.route + '/' + r.uuid + '_' + r.name}"  alt=""></div>
+                                    `;
+
+            }
+
+            if(r.userNickName == null){
+                text +=`
+                      <span>${r.userAccount}</span>
+                                    `;
+
+            } else if(r.userNickName != null){
+                text += `
+                      <span>${r.userNickName}</span>
+                                    `;
+            }
+            text +=`
+                                </div>
+                                <div class="list-content-reply">
+                                    <span>댓글</span>
+                                    `;
+            if(r.commentCount == null) {
+                text +=`
+                <span class="reply-count">0</span>
+                    `;
+            }else if(r.commentCount != null){
+                text +=`
+                <span class="reply-count">${r.commentCount}</span>
+                    `;
+            }
+
+            text +=`
+                                </div>
+                              
                             </div>
-                            <div class="list-content-reply">
-                                <span>댓글</span>
-                                <span class="reply-count">${r.commentCount}</span>
-                            </div>
-                        </div>}else{ text += <div class="list-content-etc">
-                            <div class="list-content-id">
-                                <div class="list-content-id-img"><img src="/img/dogImg.jpg" alt=""></div>
-                                <span>${r.userNickName}</span>
-                            </div>
-                            <div class="list-content-reply">
-                                <span>댓글</span>
-                                <span class="reply-count">${r.commentCount}</span>
-                            </div>
-                        </div>
-                        } }-->
-                        <div class="list-content-etc">
-                            <div class="list-content-id">
-                                <div class="list-content-id-img"><img src="/img/dogImg.jpg" alt=""></div>
-                                <span>${r.userName}</span>
-                            </div>
-                            <div class="list-content-reply">
-                                <span>댓글</span>
-                                <span class="reply-count">${r.commentCount}</span>
-                            </div>
-                        </div>
-                    </div>
-        `;
+                            
+                          </div>
+                        </div>    
+                            `;
+
         })
 
     }
@@ -97,6 +115,5 @@ function showUserQnAList(result) {
 
 
 }
-
 
 

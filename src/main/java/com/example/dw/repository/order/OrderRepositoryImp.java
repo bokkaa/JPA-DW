@@ -1,7 +1,10 @@
 package com.example.dw.repository.order;
 
 import com.example.dw.domain.dto.order.*;
+import com.example.dw.domain.entity.order.OrderItem;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Tuple;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -10,11 +13,13 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-import static com.example.dw.domain.entity.goods.QGoodsMainImg.goodsMainImg;
-import static com.example.dw.domain.entity.order.QOrderItem.orderItem;
+import static java.util.stream.Collectors.toList;
 import static com.example.dw.domain.entity.order.QOrders.orders;
 import static com.example.dw.domain.entity.user.QUsers.users;
-import static java.util.stream.Collectors.toList;
+import static com.example.dw.domain.entity.order.QOrderItem.orderItem;
+import static com.example.dw.domain.entity.goods.QGoodsMainImg.goodsMainImg;
+import static com.example.dw.domain.entity.goods.QGoods.goods;
+
 
 @Repository
 @RequiredArgsConstructor
@@ -24,6 +29,7 @@ public class OrderRepositoryImp implements OrderRepositoryCustom{
 
     @Override
     public Page<OrderListResultDto> findAllbyId(Pageable pageable, Long userId) {
+
 
 
         List<OrderDto> content = jpaQueryFactory
@@ -100,5 +106,7 @@ public class OrderRepositoryImp implements OrderRepositoryCustom{
         return new PageImpl<>(result, pageable,counts);
 
     }
+
+
 
 }

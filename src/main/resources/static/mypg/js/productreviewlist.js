@@ -44,9 +44,9 @@ function showList(result){
             `;
     }else{
 
-            result.content.forEach(r =>{
+        result.content.forEach(r =>{
 
-                text +=`
+            text +=`
                      <div class="list-content" data-id="">
                         <div class="list-content-title">
                             <span class="reviewTitle">${r.title}</span>
@@ -63,19 +63,19 @@ function showList(result){
                             <div class="list-content-rating">
                                 <span>평점</span>
                         `;
-                            if(r.rating == 1) {
-                              text +=`<span class="rating-count">★</span>`;
-                            }else if(r.rating == 2){
-                                text +=`<span class="rating-count">★★</span>`;
-                            }else if(r.rating ==3){
-                                text +=`<span class="rating-count">★★★</span>`;
-                            }else if(r.rating == 4){
-                                text +=`<span class="rating-count">★★★★</span>`;
-                            }else if(r.rating == 5){
-                                text +=`<span class="rating-count">★★★★</span>`;
-                            }
+            if(r.rating == 1) {
+                text +=`<span class="rating-count">★</span>`;
+            }else if(r.rating == 2){
+                text +=`<span class="rating-count">★★</span>`;
+            }else if(r.rating ==3){
+                text +=`<span class="rating-count">★★★</span>`;
+            }else if(r.rating == 4){
+                text +=`<span class="rating-count">★★★★</span>`;
+            }else if(r.rating == 5){
+                text +=`<span class="rating-count">★★★★</span>`;
+            }
 
-                        text +=`</div>
+            text +=`</div>
                             <div class="list-remove">
                                 <div class="list-rmove-btn">
                                     <button type="submit" class="rebtn" data-id = "${r.id}">삭제</button>
@@ -85,7 +85,7 @@ function showList(result){
                     </div>
 
                     `;
-            })
+        })
 
     }
 
@@ -109,14 +109,14 @@ function showList(result){
 
 //클릭시 해당 리뷰 삭제 (비동기 succes에 넣기)
 $(document).on('click','.rebtn',function(){
-   let ids = $(this).data('id');
+    let ids = $(this).data('id');
     if(confirm("정말 삭제하시겠습니까?")){
         let userId = $('.reviewlistmain').data('userid');
         $.ajax({
             url: `/mypgs/deletereview/${ids}`,
             type: 'post',
             success: function () {
-                    window.location.href ="/mypg/myreviewpage"+ userId;
+                window.location.href ="/mypg/myreviewpage"+ userId;
 
             },
             error: function (a, b, c) {
@@ -126,7 +126,7 @@ $(document).on('click','.rebtn',function(){
 
     }else{
         window.location.href='';
-    }   
+    }
 })
 
 

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class OrderItemDto {
 
+
     private Long id;
     private Integer orderQuantity;
     private Integer orderPrice;
@@ -20,7 +21,10 @@ public class OrderItemDto {
     private String goodsMainImgUuid;
     private Long state =0L;
 
+
+
     @QueryProjection
+
     public OrderItemDto(Long id, Integer orderQuantity, Integer orderPrice, Long goodsid, String goodsName, Long goodsMainImgId, String goodsMainImgName, String goodsMainImgPath, String goodsMainImgUuid, Long state) {
         this.id = id;
         this.orderQuantity = orderQuantity;

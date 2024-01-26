@@ -49,19 +49,19 @@ function showList(result){
                         <div class="list-content-title">
                             <div>${r.walkingMateTitle}</div>
                 `;
-                        if(r.walkingMateState ==0){
-                       text+=` 
+            if(r.walkingMateState ==0){
+                text+=` 
                             <div class="recruit-btn-box" data-walkingmateid="${r.id}">
                                 <div>모집 대기</div>
                             </div>
                         `;
-                        }else if(r.walkingMateState == 1){
-                            text +=`
+            }else if(r.walkingMateState == 1){
+                text +=`
                             <div class="recruit-box" >
                                  <span>모집 완료</span>
                             </div>
                           `;
-                        }
+            }
 
             text += `            
                     </div>
@@ -83,9 +83,9 @@ function showList(result){
                     </div>
                 `;
 
-                    if(r.walkMateStateDtoList.length != 0) {
+            if(r.walkMateStateDtoList.length != 0) {
 
-                        text += `
+                text += `
                     <div class="application-user">
                         <table class="application-user-area">
                             <tr class="title-area">
@@ -94,24 +94,47 @@ function showList(result){
                                 <th>승인여부</th>
                             </tr>
                   `;
-                        r.walkMateStateDtoList.forEach(e => {
+                r.walkMateStateDtoList.forEach(e => {
 
-                            text += `
+                    text += `
                             <tr class="user-li" data-id="${e.userId}">
                           `;
-                                if (e.userNickName == null) {
-                                    text += `<td class="userAccount">${e.userAccount}</td>`;
-                                    } else if (e.userNickName != null) {
-                                        text += `<td class="userAccount">${e.userNickName}</td>`;
-                                    }
-                                text += `  
+                    if (e.userNickName == null) {
+                        text += `<td class="userAccount">${e.userAccount}</td>`;
+                    } else if (e.userNickName != null) {
+                        text += `<td class="userAccount">${e.userNickName}</td>`;
+                    }
+                    text += `  
                                     <td class="applicationUser-city">${e.address}</td>
                                     <td class="permit-area">
                                 `;
-                                if (e.state == 0) {
+                    if (e.state == 0) {
+                        if(r.walkingMateState == 1){
 
+                            text += `    
 
-                                    text += `    
+                                        <div class="y-y" style="display: none;">
+                                            <div class="y">
+                                                <span class="y-click" data-number="${e.id}" >승인</span>
+                                            </div>
+                                        </div>
+                                        
+                                         <div class="n" style="display:none;">
+                                            <div class="n-area">
+                                                <div class="y-a">
+                                                    <span class="succes">완료</span>
+                                                </div>
+                                            
+                                                <div class="cencel-area" >
+                                                    <span class="cencel">취소</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    
+                                    </td>    
+                                </tr>
+                                    `;}else{
+                            text += `    
 
                                         <div class="y-y">
                                             <div class="y">
@@ -132,13 +155,40 @@ function showList(result){
                                         </div>
                                     
                                     </td>    
-                                </tr>
-                                    `;
+                                </tr>`;
+                        }
 
 
 
-                                } else if (e.state == 1) {
-                                    text += `
+                    } else if (e.state == 1) {
+
+
+                        if(r.walkingMateState == 1){
+                            text += `
+                                         <div class="y-y" style="display:none;">
+                                            <div class="y">
+                                                <span class="y-click">승인</span>
+                                            </div>
+                                        </div>
+                                        
+                                        
+                                        <div class="n">
+                                            <div class="n-area">
+                                                <div class="y-a">
+                                                    <span class="succes">완료</span>
+                                                </div>
+                                            
+                                                <div class="cencel-area" style="display: none;" >
+                                                    <span class="cencel" data-numbers="${e.id}">취소</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        </td>
+                                    </tr>      
+                                       `;
+                        }else {
+
+                            text += `
                                          <div class="y-y" style="display:none;">
                                             <div class="y">
                                                 <span class="y-click">승인</span>
@@ -161,21 +211,38 @@ function showList(result){
                                </tr>      
                                `;
 
-                            }
+                        }}
 
-                        });
+                });
 
-                        text += `</table>
+                text += `</table>
                             </div>
                             `;
-                    }else if(r.walkMateStateDtoList.length == 0){
-                        console.log(r.walkMateStateDtoList.length)
-                        $('.application-user').css('display','none');
+            }else if(r.walkMateStateDtoList.length == 0){
+                console.log(r.walkMateStateDtoList.length)
+                // $('.application-user').css('display','none');
+                text += `
+                               <div class="application-user" style="display: none;">
+                               
+                               
+                               
+                               </div> 
+                            <div class="none-application-area">
+                                    <div class="no-img-area">
+                                        <div class="no-img-area-text">
+                                            <img class="no-img" src="/mypg/img/wating.png"/> 
+                                        </div> 
+                                    </div>
+                                      <div class="non-application-text">사랑스러운 매이트를 기다리는 중입니다.</div>
+                                
+                            </div>
+                        
+                        `;
 
-                        console.log("처리됫다")
+                console.log("처리됫다")
 
-                    }
-                    text += `
+            }
+            text += `
                         </div>
                     </div>    
                     `;

@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -78,6 +79,23 @@ public class MypageApiController {
     @GetMapping("/mypgs/reviews")
     public byte[] getreviewImg(String fileFullPath) throws IOException {
         return FileCopyUtils.copyToByteArray(new File(reviewImg, fileFullPath));
+    }
+
+    @Value("${file.user}")
+    private  String userImg;
+
+    @GetMapping("/mypgs/userImg")
+    public byte[] getuserImg(String fileFullPath) throws IOException {
+        return FileCopyUtils.copyToByteArray(new File(userImg, fileFullPath));
+    }
+
+
+    @Value("${file.free}")
+    private String freeImg;
+
+    @GetMapping("/mypgs/freeImg")
+    public byte[] getfreeImg(String fileFullPath) throws IOException {
+        return FileCopyUtils.copyToByteArray(new File(freeImg, fileFullPath));
     }
 
 
@@ -154,20 +172,7 @@ public class MypageApiController {
 
     }
 
-    @GetMapping("/mypgs/myfreeBoardList/{page}/{userId}")
-    public Page<MyFreeBoardResultListDto> freeBoardDtoList(
-            @PathVariable("page") int page, @PathVariable("userId") Long userId) {
 
-        Pageable pageable = PageRequest.of(page, 5);
-
-        System.out.println("userId: " + userId);
-
-        Page<MyFreeBoardResultListDto> result = freeBoardRepositoryCustom.findAllById(pageable,userId);
-
-        System.out.println(result.toString()+" 컨트롤러에서 가져온 데이터 입니다.");
-
-        return result;
-    }
 
     @GetMapping("/mypgs/myregisterwalkmatewrite/{page}/{userId}")
     public Page<WalkMateMyDetailListDto> findmyregisterwalkmatewriteList(
@@ -236,6 +241,8 @@ public class MypageApiController {
         return result;
     }
 
+
+
     @GetMapping("/mypgs/myreviewlist/{page}/{userId}")
     public Page<OrderItemReviewListDto> myreviewlist(@PathVariable("page")int page,@PathVariable("userId")Long userId){
 
@@ -267,5 +274,22 @@ public class MypageApiController {
         mypageService.removeUser(userId);
         System.out.println("회원 탈퇴 완료!!");
     }
+
+    @GetMapping("/mypgs/myfreeBoardLists/{page}/{userId}")
+    public Page<MyFreeBoardResultDto> myfreeBoardList(
+            @PathVariable("page") int page,@PathVariable("userId") Long userId) {
+
+        Pageable pageable = PageRequest.of(page, 5);
+
+        System.out.println("userId: " + userId);
+
+        System.out.println("레파지토리로 들어간다!!");
+        Page<MyFreeBoardResultDto> result = freeBoardRepositoryCustom.findByUserId(pageable,userId);
+
+        System.out.println(result.toString()+" 컨트롤러에서 가져온 데이터 입니다.");
+
+        return result;
+    }
+
 
 }
