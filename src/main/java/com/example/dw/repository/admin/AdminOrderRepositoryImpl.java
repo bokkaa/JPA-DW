@@ -7,7 +7,6 @@ import com.querydsl.core.Tuple;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -38,10 +37,8 @@ public class AdminOrderRepositoryImpl implements AdminOrderRepositoryCustom{
 
 
     private final JPAQueryFactory jpaQueryFactory;
-    private final EntityManager em;
 
-
-
+    //관리자 페이지 주문 목록
     @Override
     public Page<AdminOrderListResultDto> orderLists(Pageable pageable, AdminSearchOrderForm adminSearchOrderForm) {
         SearchForm searchForm = new SearchForm(adminSearchOrderForm.getCate(), adminSearchOrderForm.getKeyword());
@@ -275,7 +272,7 @@ public class AdminOrderRepositoryImpl implements AdminOrderRepositoryCustom{
                             )
                     );
                 })
-                .sorted(Comparator.comparing(MostOrderUserDto::getTotalOrderCount, Comparator.reverseOrder()))
+                .sorted(Comparator.comparing(MostOrderUserDto::getTotalOrderCount, Comparator.reverseOrder())) //order_count기준으로 내림차순 정렬
                 .collect(Collectors.toList());
     }
 
