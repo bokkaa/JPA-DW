@@ -33,7 +33,7 @@
 - 주간 인기 QnA 게시글/ 자유게시판 글
 - 카테고리별 상품 리스트 / 최근 본 상품
 
-#### 로그인 / 회원가입 / 계정찾기 <a href="https://github.com/bokkaa/JPA-DW/wiki/%EA%B3%84%EC%A0%95-%EC%B0%BE%EA%B8%B0" >상세보기 - WIKI 이동</a>
+#### 로그인 / 회원가입 / 계정찾기 <a href="https://github.com/bokkaa/JPA-DW/wiki/%EA%B3%84%EC%A0%95-%EA%B4%80%EB%A0%A8" >상세보기 - WIKI 이동</a>
 - 로그인
 - 회원가입
 - 계정찾기
