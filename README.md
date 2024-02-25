@@ -1,4 +1,4 @@
-[포폴1차.pdf](https://github.com/bokkaa/JPA-DW/files/14395774/1.pdf)# SpringBoot-JPA-Project-산책갈개
+# SpringBoot-JPA-Project-산책갈개
 스프링부트 JPA 프로젝트
 <br>
 
