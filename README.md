@@ -38,10 +38,11 @@
 - 주간 인기 QnA 게시글/ 자유게시판 글
 - 카테고리별 상품 리스트 / 최근 본 상품
 
-#### 산책게시글 페이지 <a href="https://github.com/dafssdf/Spring_Portfoilo/wiki/%EB%A7%88%EC%9D%B4-%ED%8E%98%EC%9D%B4%EC%A7%80" >상세보기 - WIKI 이동</a>
-- 산책메이트 최신 리스트
-- 주간 인기 QnA 게시글/ 자유게시판 글
-- 카테고리별 상품 리스트 / 최근 본 상품
+#### 산책게시글 페이지 <a href="[https://github.com/dafssdf/Spring_Portfoilo/wiki/%EB%A7%88%EC%9D%B4-%ED%8E%98%EC%9D%B4%EC%A7%80](https://github.com/bokkaa/JPA-DW/wiki/%EC%82%B0%EC%B1%85%EB%A9%94%EC%9D%B4%ED%8A%B8-%EA%B2%8C%EC%8B%9C%ED%8C%90)" >상세보기 - WIKI 이동</a>
+- 산책게시글 목록
+- 산책게시글 상세
+- 산책게시글 등록
+- 산책게시글 수정 및 삭제
 
 #### 관리자 페이지 <a href="https://github.com/dafssdf/Spring_Portfoilo/wiki/%EB%A7%88%EC%9D%B4-%ED%8E%98%EC%9D%B4%EC%A7%80" >상세보기 - WIKI 이동</a>
 - 산책메이트 최신 리스트
