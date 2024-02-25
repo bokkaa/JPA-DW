@@ -1,4 +1,4 @@
-# SpringBoot-JPA-Project-산책갈개
+[포폴1차.pdf](https://github.com/bokkaa/JPA-DW/files/14395774/1.pdf)# SpringBoot-JPA-Project-산책갈개
 스프링부트 JPA 프로젝트
 <br>
 
@@ -23,6 +23,9 @@
 - **Database** : Oracle DB(11xe)
 - **ORM** : JPA
 
+### 포트폴리오 
+
+[포폴1차.pdf](https://github.com/bokkaa/JPA-DW/files/14395778/1.pdf)
 
 ## 📌 내가 맡은 기능
 #### 메인 페이지 <a href="https://github.com/dafssdf/Spring_Portfoilo/wiki/%EB%A7%88%EC%9D%B4-%ED%8E%98%EC%9D%B4%EC%A7%80" >상세보기 - WIKI 이동</a>
