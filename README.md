@@ -28,7 +28,7 @@
 [포폴1차.pdf](https://github.com/bokkaa/JPA-DW/files/14395778/1.pdf)
 
 ## 📌 내가 맡은 기능
-#### 메인 페이지 <a href="https://github.com/dafssdf/Spring_Portfoilo/wiki/%EB%A7%88%EC%9D%B4-%ED%8E%98%EC%9D%B4%EC%A7%80" >상세보기 - WIKI 이동</a>
+#### 메인 페이지 <a href="https://github.com/bokkaa/JPA-DW/wiki/%EB%A9%94%EC%9D%B8%ED%8E%98%EC%9D%B4%EC%A7%80" >상세보기 - WIKI 이동</a>
 - 산책메이트 최신 리스트
 - 주간 인기 QnA 게시글/ 자유게시판 글
 - 카테고리별 상품 리스트 / 최근 본 상품
