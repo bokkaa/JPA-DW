@@ -209,6 +209,8 @@ public class AdminGoods extends AdminGoodsStan {
 </details>
 </details>
 
+<br>
+
 <details><summary>2. 페이징 처리 기준</summary>
 
 ```java
@@ -279,7 +281,7 @@ public class AdminGoods extends AdminGoodsStan {
 
 ```
 
-- 페이징 처리 변수를 15로 고정해놓았다. 하지만 위 방식으로 쿼리를 돌려서 뽑아보니
+- 한 페이지당 보이는 게시글을 15개로 고정해놓았다. 하지만 위 방식으로 쿼리를 돌려서 뽑아보니 <br>
   주문 목록 id 기준으로 페이징처리가 되는 것이 아니라 주문 내역데 들어가 있는 상품들 수로 페이징 기준이 잡혀버렸다.
 - 따라서 이를 해결하기 위해 주문ID 조회를 루트로 하는 쿼리를 따로 뽑았고 그 결과값을 본 쿼리의 where in절에 조건으로 넣었다.
 
@@ -361,3 +363,9 @@ public class AdminGoods extends AdminGoodsStan {
 </details>
 
 </details>
+
+<hr>
+
+## 느낀점
+
+- JPA 프로젝트를 진행하며 
