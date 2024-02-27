@@ -1,6 +1,5 @@
 package com.example.dw.controller;
 
-import com.example.dw.aspect.annotation.LoggingPointCut;
 import com.example.dw.domain.dto.admin.AdminFreeDetailResultDto;
 import com.example.dw.domain.dto.admin.AdminQnaDetailResultDto;
 import com.example.dw.domain.dto.admin.AdminWalkMateDetailDto;
@@ -26,7 +25,12 @@ public class AdminCommunityController {
         return "/admin/adminQnaList";
     }
 
-    //qna상세
+    /**
+     * 관리자 페이지 - Qna 게시글 상세
+     * @param qnaId Qna 게시글 ID
+     * @param model model 객체
+     * @return 해당 Qna 게시글 ID와 일치하는 게시글 정보
+     */
     @GetMapping("/questionDetail/{qnaId}")
     public String qnaDetail(@PathVariable("qnaId") Long qnaId,
                             Model model){
@@ -39,7 +43,10 @@ public class AdminCommunityController {
         return "/admin/adminQnaDetail";
     }
 
-    //qna 삭제
+    /**
+     * 관리자 페이지 - Qna 삭제
+     * @param qnaId Qna 게시글 ID
+     */
     @GetMapping("/questionDelete/{qnaId}")
     public RedirectView qnaDelete(@PathVariable("qnaId") Long qnaId){
 
@@ -55,7 +62,12 @@ public class AdminCommunityController {
     }
 
 
-    //자유게시판 상세
+    /**
+     * 관리자 페이지 - 자유게시판 상세
+     * @param freeBoardId 자유게시판 ID
+     * @param model model 객체
+     * @return
+     */
     @GetMapping("/freeBoardDetail/{freeBoardId}")
     public String freeBoardDetail(@PathVariable("freeBoardId") Long freeBoardId,
                                   Model model){
@@ -65,7 +77,11 @@ public class AdminCommunityController {
         return "/admin/adminFreeDetail";
     }
 
-    //자유게시판 삭제
+    /**
+     * 관리자 페이지 - 자유게시판 글 삭제
+     * @param freeBoardId 자유게시판 ID
+     * @return 관리자 페이지 - 자유게시판 목록으로 이동
+     */
     @GetMapping("/freeBoardDelete/{freeBoardId}")
     public RedirectView freeBoardDelete(@PathVariable("freeBoardId") Long freeBoardId){
 
@@ -80,11 +96,12 @@ public class AdminCommunityController {
     }
 
 
-
-
-
-    //산책글 상세보기
-    @LoggingPointCut
+    /**
+     * 관리자 페이지 - 산책메이트 게시물 상세 정보
+     * @param walkMateId 산책메이트 게시물ID
+     * @param model model 객체
+     * @return 산책메이트 게시물 상세 정보
+     */
     @GetMapping("/walkMateDetail/{walkMateId}")
     public String walkMateDetailPage(
             @PathVariable("walkMateId") Long walkMateId,

@@ -19,6 +19,12 @@ public class AdminUserService {
     private final UsersRepository usersRepository;
     private final UsersRepositoryCustom usersRepositoryCustom;
 
+
+    /**
+     *
+     * @param userId 회원ID
+     * @return 회원 상세 정보
+     */
     //회원 상세보기
     @Transactional
     public AdminUserDetailResultDto userDetail(Long userId){
@@ -28,26 +34,45 @@ public class AdminUserService {
     }
 
 
-    //회원 상세보기-qna 내역
+    /**
+     *
+     * @param userId 회원ID
+     * @param pageable Pageable
+     * @return 해당 회원이 작성한 QnA 게시글
+     */
     @Transactional
     public Page<AdminUserDetailQnaListDto> qnalist(Pageable pageable, Long userId){
         return usersRepositoryCustom.userDetailQnaList(pageable,userId);
     }
 
-    //회원 상세보기 -자유게시판 내역
-    @Transactional
+    /**
+     *
+     * @param userId 회원ID
+     * @param pageable Pageable
+     * @return 해당 회원이 작성한 자유게시판 게시글
+     */       @Transactional
     public Page<AdminUserDetailFreeBoardListDto> freeBoardList(Pageable pageable, Long userId){
         return usersRepositoryCustom.userDetailFreeBoardList(pageable, userId);
     }
 
-    //회원 상세보기-산책 내역
+    /**
+     *
+     * @param userId 회원ID
+     * @param pageable Pageable
+     * @return 해당 회원이 작성한 산책메이트 게시글
+     */
     @Transactional
     public Page<AdminUserDetailWalkMateDto> walkMateList(Pageable pageable, Long userId){
         return usersRepositoryCustom.userDetailWalkMateList(pageable, userId);
     }
 
 
-    //회원 상세보기-주문 내역
+    /**
+     *
+     * @param pageable Pageable
+     * @param userId 회원ID
+     * @return 해당 회원의 주문 내역 및 총 주문 합계 금액
+     */
     @Transactional
     public Page<AdminUserDetailOrderResultWithTotalPriceDto> orderList(Pageable pageable, Long userId){
         return usersRepositoryCustom.userPaymentList(pageable,userId);

@@ -5,7 +5,6 @@ import com.example.dw.domain.dto.admin.AdminWalkMateDetailDto;
 import com.example.dw.domain.dto.admin.ApplierUserList;
 import com.example.dw.domain.dto.admin.QAdminWalkMateDetailDto;
 import com.example.dw.domain.dto.admin.QApplierUserList;
-
 import com.example.dw.domain.dto.community.*;
 import com.example.dw.domain.form.SearchCateLocationForm;
 import com.example.dw.domain.form.SearchForm;
@@ -28,7 +27,6 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.example.dw.domain.entity.user.QPet.pet;
 import static com.example.dw.domain.entity.user.QPetImg.petImg;
@@ -46,10 +44,16 @@ public class WalkingMateRepositoryImpl implements WalkingMateRepositoryCustom {
 
     private final JPAQueryFactory jpaQueryFactory;
 
+    private static final Integer Max_Result = 7;
 
     //산책글 모집현황
 
-    //산책글 리스트
+    /**
+     * 산책메이트 게시물 목록
+     * @param pageable Pageable 페이징
+     * @param searchLocationForm 검색 정보
+     * @return 산책메이트 게시물 목록
+     */
     @Override
     public Page<WalkMateListDto> findAllWalkMate(Pageable pageable, SearchLocationForm searchLocationForm) {
 
@@ -119,8 +123,11 @@ public class WalkingMateRepositoryImpl implements WalkingMateRepositoryCustom {
     }
 
 
-
-    //산책글 상세보기
+    /**
+     * 산책메이트 게시물 상세 정보 조회
+     * @param walkBoardId 산책메이트 게시판ID
+     * @return 산책메이트 게시물 상세 정보
+     */
     @Override
     public Optional<WalkMateDetailDto> walkMateDetail(Long walkBoardId) {
         return Optional.ofNullable(jpaQueryFactory.select(new QWalkMateDetailDto(
@@ -191,12 +198,14 @@ public class WalkingMateRepositoryImpl implements WalkingMateRepositoryCustom {
     }
 
 
-
-    //관리자 페이지 산책글 리스트
+    /**
+     * 관리자 페이지 - 산책메이트 게시글 목록
+     * @param pageable Pageable 페이징
+     * @param searchCateLocationForm 갬색정보
+     * @return 산책메이트 게시글 목록
+     */
     @Override
     public Page<WalkMateListDto> findAllWalkMate(Pageable pageable, SearchCateLocationForm searchCateLocationForm) {
-
-
 
         SearchLocationForm searchLocationForm = new SearchLocationForm(
                 searchCateLocationForm.getArea(),
@@ -204,7 +213,6 @@ public class WalkingMateRepositoryImpl implements WalkingMateRepositoryCustom {
                 searchCateLocationForm.getCounty(),
                 searchCateLocationForm.getState()
         );
-
 
         List<WalkMateListDto> content = jpaQueryFactory.select(new QWalkMateListDto(
                 walkingMate.id,
@@ -233,7 +241,7 @@ public class WalkingMateRepositoryImpl implements WalkingMateRepositoryCustom {
                         countyNameEq(searchLocationForm),
                         dateEq(searchCateLocationForm.getStartDate(), searchCateLocationForm.getEndDate())
                 )
-                .where(walkingMateState.state.eq(1))
+                .where(walkingMateState.state.eq(1)) //모집 상태
                 .groupBy(
                         walkingMate.id,
                         walkingMate.walkingMateTitle,
@@ -274,10 +282,15 @@ public class WalkingMateRepositoryImpl implements WalkingMateRepositoryCustom {
     }
 
 
-    //관리자페이지 산책글 상세보기
+    /**
+     * 관리자 페이지 - 산책메이트 게시물 상세 정보
+     * @param walkMateId 산책메이트 게시물ID
+     * @return 산책메이트 게시물 상세 정보
+     */
     @Override
     public AdminWalkMateDetailDto adminWalkMateDetail(Long walkMateId) {
 
+        //산책메이트 게시글 정보
         AdminWalkMateDetailDto adminWalkMateDetailDto = jpaQueryFactory.select(
                 new QAdminWalkMateDetailDto(
                         walkingMate.id,
@@ -300,6 +313,7 @@ public class WalkingMateRepositoryImpl implements WalkingMateRepositoryCustom {
                  .where(walkingMate.id.eq(walkMateId))
                  .fetchOne();
 
+        //산책메이트 게시글 신청자 정보
         List<ApplierUserList> applierUserListList = jpaQueryFactory.select(new QApplierUserList(
                                 walkingMateState.id,
                                walkingMateState.users.id,
@@ -323,6 +337,7 @@ public class WalkingMateRepositoryImpl implements WalkingMateRepositoryCustom {
                 .where(walkingMate.id.eq(walkMateId).and(walkingMateState.writerCheck.eq(0)))
                 .fetch();
 
+        //산책메이트 게시글 댓글 정보
         List<WalkMateDetailReplyDto> replyDtos =
                        jpaQueryFactory.select(new QWalkMateDetailReplyDto(
                                 walkingMateComment.id,
@@ -344,13 +359,18 @@ public class WalkingMateRepositoryImpl implements WalkingMateRepositoryCustom {
                                .where(walkingMateComment.walkingMate.id.eq(walkMateId))
                                .fetch();
 
+
+
         adminWalkMateDetailDto.setApplierUserListList(applierUserListList);
         adminWalkMateDetailDto.setWalkMateDetailReplyDtos(replyDtos);
 
         return adminWalkMateDetailDto;
     }
 
-    //메인페이지 산책글 리스트
+    /**
+     * 메인 페이지 - 산책메이트 게시글 목록
+     * @return 산책메이트 게시글 목록
+     */
     @Override
     public List<IndexWalkMateDto> IndexWalkMateList() {
         return jpaQueryFactory.select(new QIndexWalkMateDto(
@@ -370,13 +390,16 @@ public class WalkingMateRepositoryImpl implements WalkingMateRepositoryCustom {
                 .leftJoin(pet.petImg, petImg)
                 .where(walkingMate.walkingMateState.eq(0L))
                 .orderBy(walkingMate.id.desc())
-                .limit(7)
+                .limit(Max_Result)
                 .fetch();
     }
 
 
-
-    //산책메이트 리스트 전체-모집중-모집완료
+    /**
+     * 산책메이트 게시글 목록 검색
+     * @param searchLocationForm 모집 상태
+     * @return
+     */
     private BooleanExpression createRecruitmentStatusCondition(SearchLocationForm searchLocationForm) {
         try{
             if (searchLocationForm.getState().equals("0")) { // 모집중
@@ -393,7 +416,11 @@ public class WalkingMateRepositoryImpl implements WalkingMateRepositoryCustom {
 
     }
 
-    //산책메이트 리스트 권역 검색
+    /**
+     * 산책메이트 게시글 목록 검색
+     * @param searchLocationForm 권역
+     * @return
+     */
     private BooleanExpression areaNameEq(SearchLocationForm searchLocationForm){
 
         if(searchLocationForm.getArea().equals("수도권")){
@@ -413,18 +440,31 @@ public class WalkingMateRepositoryImpl implements WalkingMateRepositoryCustom {
 
         }
     }
-    //산책메이트 도시 검색
+
+    /**
+     * 산책메이트 게시글 목록 검색
+     * @param searchLocationForm 도시
+     * @return
+     */
     private BooleanExpression cityNameEq(SearchLocationForm searchLocationForm){
         return StringUtils.hasText(searchLocationForm.getCity()) ? walkingMate.walkCity.eq(searchLocationForm.getCity()) : null;
     }
-    //산책메이트 시,군,구 검색
+
+    /**
+     * 산책메이트 게시글 목록 검색
+     * @param searchLocationForm 행정구, 군 등
+     * @return
+     */
     private BooleanExpression countyNameEq(SearchLocationForm searchLocationForm){
         return StringUtils.hasText(searchLocationForm.getCounty()) ? walkingMate.walkCounty.eq(searchLocationForm.getCounty()) : null;
     }
 
 
-
-    //관리자 산책글 제목/내용검색
+    /**
+     * 관리자 페이지 - 산책메이트 게시글 목록 검색
+     * @param searchForm 검색 카테고리 - 제목/작성자
+     * @return
+     */
     private BooleanExpression cateKeywordEq(SearchForm searchForm){
         if(StringUtils.hasText(searchForm.getCate())&&StringUtils.hasText(searchForm.getKeyword())){
 
@@ -442,11 +482,16 @@ public class WalkingMateRepositoryImpl implements WalkingMateRepositoryCustom {
         return walkingMate.id.isNotNull();
     }
 
-    //날짜 검색
+    /**
+     * 관리자 페이지 - 산책메이트 게시글 목록 검색
+     * @param startDate 시작날짜
+     * @param endDate 종료날짜
+     * @return
+     */
     private BooleanExpression dateEq(String startDate, String endDate) {
 
+        //시작날짜와 종료날짜가 모두 없을 때
         if ((startDate == null || startDate.isEmpty()) && (endDate == null || endDate.isEmpty())) {
-            System.out.println("둘 다 null이야");
             return null;
         }
 

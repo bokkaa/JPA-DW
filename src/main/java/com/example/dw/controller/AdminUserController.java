@@ -37,7 +37,12 @@ public class AdminUserController {
         return "/admin/adminUserList";
     }
 
-    //관리자 페이지 회원 상세 보기
+    /**
+     *
+     * @param userId 회원ID
+     * @param model html로 넘기기 위한 model 객체
+     * @return 회원 상세 정보
+     */
     @GetMapping("/userDetail/{userId}")
     public String userDetail(@PathVariable("userId") Long userId, Model model){
 

@@ -77,21 +77,6 @@ public class AdminNoticeController {
 
     }
 
-    //공지사항 작성 페이지 이동
-    @GetMapping("/noticeWrite")
-    public String noticeWritePage(){
-        return "/admin/adminNoticeReg";
-    }
-
-
-    //공지사항 작성
-    @PostMapping("/noticeWrite")
-    public String noticeWrite(NoticeBoardForm noticeBoardForm){
-
-        adminNoticeService.register(noticeBoardForm);
-        return "/admin/adminNoticeList";
-
-    }
 
     //Faq작성 페이지 이동
     @GetMapping("/faqWrite")
@@ -99,7 +84,11 @@ public class AdminNoticeController {
         return "/admin/adminFaqReg";
     }
 
-    //Faq 작성
+    /**
+     * FAQ 작성
+     * @param faqBoardForm 작성 정보가 담겨져 있는 form
+     * @return 공지 목록 페이지로 이동
+     */
     @PostMapping("/faqWrite")
     public RedirectView faqWrite(FaqBoardForm faqBoardForm){
 
@@ -112,7 +101,12 @@ public class AdminNoticeController {
         return new RedirectView("/admin/noticeList");
     }
 
-    //faq 수정 페이지 이동
+    /**
+     * FAQ 수정 페이지 이동
+     * @param faqBoardId FAQ ID
+     * @param model model 객체
+     * @return 해당 FAQ ID와 일치하는 게시물 정보를 가지고 수정 페이지 이동
+     */
     @GetMapping("/faqModifyPage/{faqBoardId}")
     public String faqModifyPage(@PathVariable("faqBoardId") Long faqBoardId, Model model){
 
@@ -128,7 +122,12 @@ public class AdminNoticeController {
         return "/admin/adminFaqModify";
     }
 
-    //faq 수정 완료
+    /**
+     * FAQ 수정 정보 제출
+     * @param faqBoardId FAQ ID
+     * @param faqBoardForm 수정 정보가 담긴 form
+     * @return 공지 목록 페이지로 이동
+     */
     @PutMapping("/faqModify/{id}/edit")
     public RedirectView faqModify(
             @PathVariable("id") Long faqBoardId,
@@ -140,8 +139,12 @@ public class AdminNoticeController {
 
         return new RedirectView("/admin/noticeList");
     }
-    //추후 삭제는 비동기로 바꿀까 생각중
-    //faq 삭제
+
+    /**
+     * FAQ 삭제
+     * @param faqBoardId FAQ ID
+     * @return 공지 목록 페이지로 이동
+     */
     @GetMapping("/faqDelete/{id}")
         public RedirectView faqDelete(
                 @PathVariable("id") Long faqBoardId){
@@ -154,7 +157,34 @@ public class AdminNoticeController {
 
     }
 
-    //공지사항 수정 페이지
+
+    //공지사항 작성 페이지 이동
+    @GetMapping("/noticeWrite")
+    public String noticeWritePage(){
+        return "/admin/adminNoticeReg";
+    }
+
+
+    /**
+     * 공지사항 작성
+     * @param noticeBoardForm 작성 정보가 담겨져 있는 form
+     * @return 공지 목록 페이지로 이동
+     */
+    @PostMapping("/noticeWrite")
+    public String noticeWrite(NoticeBoardForm noticeBoardForm){
+
+        adminNoticeService.register(noticeBoardForm);
+        return "/admin/adminNoticeList";
+
+    }
+
+
+    /**
+     * 공지사항 수정 페이지 이동
+     * @param noticeBoardId 공지사항 ID
+     * @param model model 객체
+     * @return 공지사항 ID와 일치하는 게시물 정보를 가지고 수정 페이지로 이동
+     */
     @GetMapping("/noticeModifyPage/{noticeBoardId}")
     public String noticeModifyPage(@PathVariable("noticeBoardId")Long noticeBoardId,
                                   Model model){
@@ -168,8 +198,13 @@ public class AdminNoticeController {
         model.addAttribute("detail", noticeBoardForm);
         return "/admin/adminNoticeModify";
     }
-    
-    //공지사항 수정 완료
+
+    /**
+     * 공지사항 수정 제출
+     * @param id 공지사항 ID
+     * @param noticeBoardForm 수정 정보가 담긴 form
+     * @return 공지 목록으로 이동
+     */
     @PutMapping("/noticeModify/{id}/edit")
     public RedirectView noticeModify(@PathVariable("id") Long id,
                                      NoticeBoardForm noticeBoardForm){
@@ -181,8 +216,11 @@ public class AdminNoticeController {
     }
 
 
-    //추후 삭제는 비동기로 바꿀까 생각중
-    //공지사항 삭제
+    /**
+     * 공지사항 삭제
+     * @param id 공지사항 ID
+     * @return 공지 목록으로 이동
+     */
     @GetMapping("/noticeDelete/{id}")
     public RedirectView noticeDelete(@PathVariable("id") Long id){
 

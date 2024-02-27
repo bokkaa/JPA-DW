@@ -23,7 +23,14 @@ public class AdminUserApiController {
     private final AdminUserService adminUserService;
     private final UsersRepositoryCustom usersRepositoryCustom;
 
-    //회원목록 조회
+    /**
+     *
+     * @param page 페이징 처리를 위한 페이지 변수
+     * @param userState 회원 가입 상태(가입 중 / 탈퇴 상태)
+     * @param cate 아아디, 이름, 이메일 등 검색 카테고리
+     * @param keyword 검색 키워드
+     * @return 가입 회원 목록 및 탈퇴 회원 목록
+     */
     @GetMapping("/userList/{page}")
     public Page<UserListDto> findUserList(
             @PathVariable("page") int page,
@@ -46,7 +53,14 @@ public class AdminUserApiController {
 
         return usersRepositoryCustom.findByUserId(userId);
     }
-    //회원 상세 - qna 내역
+
+
+    /**
+     *
+     * @param userId 회원ID
+     * @param page 페이지 변수
+     * @return 해당 회원이 작성한 QnA 게시글
+     */
     @GetMapping("/userQnaList/{userId}/{page}")
     public Page<AdminUserDetailQnaListDto> qnaList(
             @PathVariable("userId") Long userId,
@@ -60,7 +74,12 @@ public class AdminUserApiController {
         return adminUserService.qnalist(pageable, userId);
     }
 
-    //회원 상세 -자유게시판 내역
+    /**
+     *
+     * @param userId 회원ID
+     * @param page 페이지 변수
+     * @return 해당 회원이 작성한 자유게시판 게시글
+     */
     @GetMapping("/userFreeBoardList/{userId}/{page}")
     public Page<AdminUserDetailFreeBoardListDto> freeBoardList(
             @PathVariable("userId") Long userId,
@@ -73,8 +92,12 @@ public class AdminUserApiController {
     }
 
 
-    //회원 상세 - 산책내역
-    @GetMapping("/userWalkList/{userId}/{page}")
+    /**
+     *
+     * @param userId 회원ID
+     * @param page 페이지 변수
+     * @return 해당 회원이 작성한 산책메이트 게시글
+     */    @GetMapping("/userWalkList/{userId}/{page}")
     public Page<AdminUserDetailWalkMateDto> walkList(
             @PathVariable("userId") Long userId,
             @PathVariable("page") int page
@@ -87,9 +110,12 @@ public class AdminUserApiController {
     }
 
 
-
-
-    //회원 상세 - 주문 내역
+    /**
+     *
+     * @param userId 회원ID
+     * @param page 페이지 변수
+     * @return 해당 회원의 주문 내역 및 총 주문 합계 금액
+     */
     @GetMapping("/userOrderList/{userId}/{page}")
     public Page<AdminUserDetailOrderResultWithTotalPriceDto> orderList(
             @PathVariable("userId") Long userId,
@@ -101,14 +127,18 @@ public class AdminUserApiController {
     }
 
 
-    //주단위 일별 회원가입자 수
+    /**
+     * @return 일별 회원 가입 수
+     */
     @GetMapping("/daily")
     public List<AdminUserChartDto> getDaily() {
 
         return usersRepositoryCustom.findJoinCountByAll();
     }
 
-    //신규 가입 현황
+    /**
+     * @return 회원 신규 가입 최근 4개
+     * */
     @GetMapping("/newUserStatus")
     public Map<String, List> status(){
 

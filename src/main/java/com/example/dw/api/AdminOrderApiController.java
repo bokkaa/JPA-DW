@@ -1,6 +1,10 @@
 package com.example.dw.api;
 
-import com.example.dw.domain.dto.admin.*;
+import com.example.dw.domain.dto.admin.AdminOrderDetailResultDto;
+import com.example.dw.domain.dto.admin.AdminWeeklyOrderState;
+import com.example.dw.domain.dto.admin.GoodsSaleByCategory;
+import com.example.dw.domain.dto.admin.MostOrderUserDto;
+import com.example.dw.domain.dto.admin.orders.AdminOrderList;
 import com.example.dw.domain.form.AdminSearchOrderForm;
 import com.example.dw.service.AdminOrderService;
 import lombok.RequiredArgsConstructor;
@@ -25,22 +29,30 @@ public class AdminOrderApiController {
     private final AdminOrderService adminOrderService;
 
 
-    //관리자 페이지 일별 주문 현황
+    /**
+     * 관리자 페이지 - 일별 주문량 조회
+     * @return 일별 주문량
+     */
     @GetMapping("/weeklyOrderState")
     public List<AdminWeeklyOrderState> weeklyOrderStateList(){
 
         return adminOrderService.weeklyOrderStateList();
     }
 
-
-    //상품 카테고리별 판매 비율
+    /**
+     * 관리자 페이지 - 상품 카테고리별 판매비율 조회
+     * @return 상품 카테고리별 판매량
+     */
     @GetMapping("/salesByCategory")
     public List<GoodsSaleByCategory> salesByCategory(){
         return adminOrderService.saleByCategory();
     }
 
 
-    //최다 주문회원
+    /**
+     * 관리자 페이지 - 최다 주문 회원 Best5 조회
+     * @return 최다 주문 회원 5명 조회
+     */
     @GetMapping("/mostOrders")
     public List<MostOrderUserDto> mostOrders(){
 
@@ -49,10 +61,16 @@ public class AdminOrderApiController {
         return mostOrdersInfo;
     }
 
-    //관리자 페이지 주문 리스트
+    /**
+     * 관리자 페이지 - 주문 목록
+     * @param page page 변수
+     * @param adminSearchOrderForm 검색 요건
+     * @return 주문 목록
+     */
     @GetMapping("/orderList/{page}")
-    public Page<AdminOrderListResultDto> orderList(@PathVariable("page")int page,
-                                                   AdminSearchOrderForm adminSearchOrderForm){
+    public Page<AdminOrderList.AdminOrdersListDto.AdminOrderListResultDto> orderList(
+            @PathVariable("page")int page,
+            AdminSearchOrderForm adminSearchOrderForm){
 
         Pageable pageable = PageRequest.of(page, 15);
 

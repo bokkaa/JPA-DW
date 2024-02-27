@@ -1,6 +1,8 @@
 package com.example.dw.repository.admin;
 
 import com.example.dw.domain.dto.admin.*;
+import com.example.dw.domain.dto.admin.orders.AdminOrderList;
+import com.example.dw.domain.dto.admin.orders.QAdminOrderList_AdminOrdersListDto;
 import com.example.dw.domain.form.AdminSearchOrderForm;
 import com.example.dw.domain.form.SearchForm;
 import com.querydsl.core.Tuple;
@@ -38,11 +40,20 @@ public class AdminOrderRepositoryImpl implements AdminOrderRepositoryCustom{
 
     private final JPAQueryFactory jpaQueryFactory;
 
-    //관리자 페이지 주문 목록
+
+    /**
+     * 관리자 페이지 - 주문 목록
+     * @param pageable 페이징 처리를 위한 Pageable
+     * @param adminSearchOrderForm 검색 요건
+     * @return 주문 목록
+     */
     @Override
-    public Page<AdminOrderListResultDto> orderLists(Pageable pageable, AdminSearchOrderForm adminSearchOrderForm) {
+    public Page<AdminOrderList.AdminOrdersListDto.AdminOrderListResultDto> orderLists(
+            Pageable pageable, AdminSearchOrderForm adminSearchOrderForm) {
+
         SearchForm searchForm = new SearchForm(adminSearchOrderForm.getCate(), adminSearchOrderForm.getKeyword());
 
+        //orderListId로 페이징처리하기 위한 루트쿼리
         List<Long> orderListIds = jpaQueryFactory
                 .selectDistinct(orderList.id)
                 .from(orderList)
@@ -57,7 +68,7 @@ public class AdminOrderRepositoryImpl implements AdminOrderRepositoryCustom{
 
         System.out.println(orderListIds);
 
-        List<AdminOrderListDto> list = jpaQueryFactory.select(new QAdminOrderListDto(
+        List<AdminOrderList.AdminOrdersListDto> list = jpaQueryFactory.select(new QAdminOrderList_AdminOrdersListDto(
                 orderList.id,
                 orders.id,
                 users.id,
@@ -96,9 +107,16 @@ public class AdminOrderRepositoryImpl implements AdminOrderRepositoryCustom{
         return new PageImpl<>(convertOrderList(list), pageable, getTotal);
     }
 
-    //관리자 페이지 주문 상세
+    /**
+     * 관리자 페이지 - 주문 상세보기
+     * @param userId 회원ID
+     * @param orderId 주문ID
+     * @return 주문 상세 정보
+     */
     @Override
     public AdminOrderDetailResultDto orderDetail(Long userId, Long orderId) {
+
+        //주문 상품 조회
         List<AdminOrderDetailGoodsListDto> adminOrderDetailGoodsList = jpaQueryFactory.select(new QAdminOrderDetailGoodsListDto(
                 goods.id,
                 goods.goodsName,
@@ -114,6 +132,7 @@ public class AdminOrderRepositoryImpl implements AdminOrderRepositoryCustom{
                 .where(orders.id.eq(orderId))
                 .fetch();
 
+        //주문 기본 정보 조회
         AdminOrderDetailDto adminOrderDetailDto = jpaQueryFactory.select(new QAdminOrderDetailDto(
                 orders.users.id,
                 orders.users.userAccount,
@@ -138,6 +157,7 @@ public class AdminOrderRepositoryImpl implements AdminOrderRepositoryCustom{
                   orderId
                     ,
             new AdminOrderDetailDto(
+
                     adminOrderDetailDto.getUserId(),
                     adminOrderDetailDto.getOrderAccount(),
                     adminOrderDetailDto.getOrderUserName(),
@@ -148,11 +168,15 @@ public class AdminOrderRepositoryImpl implements AdminOrderRepositoryCustom{
                     adminOrderDetailDto.getOrderAddressDetail(),
                     adminOrderDetailDto.getOrderMemo(),
                     adminOrderDetailDto.getOrderDate(),
-                    adminOrderDetailGoodsList)
-            );
+
+                    adminOrderDetailGoodsList //주문 상품 List
+            ));
     }
 
-    //일별 주문 건수
+    /**
+     * 관리자 페이지 - 일별 주문량 조회
+     * @return 일별 주문량
+     */
     @Override
     public List<AdminWeeklyOrderState> weeklyOrderState() {
         LocalDate nowDate = LocalDate.now();
@@ -171,13 +195,13 @@ public class AdminOrderRepositoryImpl implements AdminOrderRepositoryCustom{
         }
 
         Map<LocalDate, Long> weeklySales = jpaQueryFactory.select(
-                orders.orderRegisterDate,  // 이 부분을 그대로 사용
+                orders.orderRegisterDate,
                 orders.count()
         )
                 .from(orders)
                 .where(orders.orderRegisterDate.between(startWeeklyDateTime.atStartOfDay(), nowDate.atTime(23, 59, 59)))
                 .orderBy(orders.orderRegisterDate.desc())
-                .groupBy(orders.orderRegisterDate)  // 이 부분을 변경하지 않음
+                .groupBy(orders.orderRegisterDate)
                 .fetch()
                 .stream().collect(Collectors.toMap(
                         tuple -> tuple.get(orders.orderRegisterDate).toLocalDate(),
@@ -191,17 +215,19 @@ public class AdminOrderRepositoryImpl implements AdminOrderRepositoryCustom{
         }
 
         return weeklySales.entrySet().stream()
-                .sorted(Map.Entry.comparingByKey(Comparator.reverseOrder())) //키값 - 날짜 내림차순 정렬
+                .sorted(Map.Entry.comparingByKey(Comparator.reverseOrder())) //날짜 내림차순 정렬
                 .map(sales -> new AdminWeeklyOrderState(sales.getKey(), sales.getValue()))
                 .collect(Collectors.toList());
     }
 
 
-
-    //카테고리별 상품 판매 비율
+    /**
+     * 관리자 페이지 - 상품 카테고리별 판매비율 조회
+     * @return 상품 카테고리별 판매량
+     */
     @Override
     public List<GoodsSaleByCategory> saleByCategory() {
-        //집합함수 결과반환타입은 보통 Tuple
+
         List<Tuple> tuples = jpaQueryFactory
                 .select(
                         goods.goodsCategory,
@@ -219,9 +245,13 @@ public class AdminOrderRepositoryImpl implements AdminOrderRepositoryCustom{
     }
 
 
-    //최다 주문회원 top5
+    /**
+     * 관리자 페이지 - 최다 주문 회원 Best5 조회
+     * @return 최다 주문 회원 5명 조회
+     */
     @Override
     public List<MostOrderUserDto> mostOrders() {
+
         // 주문 횟수와 총 주문 가격을 구하는 쿼리
         List<Tuple> mostAndTotals = jpaQueryFactory
                 .select(
@@ -277,30 +307,35 @@ public class AdminOrderRepositoryImpl implements AdminOrderRepositoryCustom{
     }
 
 
+    /**
+     * 중복 조회된 정보를 하나로 처리하고 주문ID 내림차순으로 매핑하는 메소드
+     * @param orderList orderLists 메소드의 리턴값
+     * @return
+     */
+    private List<AdminOrderList.AdminOrdersListDto.AdminOrderListResultDto> convertOrderList(
+            List<AdminOrderList.AdminOrdersListDto> orderList) {
 
 
-    // AdminOrderListDto 목록을 AdminOrderListResultDto로 변환하는 메서드
-    private List<AdminOrderListResultDto> convertOrderList(List<AdminOrderListDto> orderList) {
-
-        //.collect stream()을 자료구조로 담을떄 사용
-        Map<Long, List<AdminOrderListDto>> groupedOrders = orderList.stream()
-                .collect(groupingBy(AdminOrderListDto::getOrderListId));
-        //orderListId로 그룹화한다. 즉 Map의 Key값이 orderListId로 들어가게되며
-        //value값은 List<>모든 값들이 차례대로 들어간다.
+        Map<Long, List<AdminOrderList.AdminOrdersListDto>> groupedOrders =
+                orderList.stream()
+                .collect(groupingBy(AdminOrderList.AdminOrdersListDto::getOrderListId));
 
 
-                            //맵을 뜯음                     //키값 기준으로 역순(내림차순으로 정렬)
+
         return groupedOrders.entrySet().stream().sorted(Map.Entry.comparingByKey(Comparator.reverseOrder()))
                 .map(entry -> {
-                    Long orderListId = entry.getKey(); //Map의 key값
+
+                    Long orderListId = entry.getKey();
+
                     LocalDateTime payDatetime = entry.getValue().stream().findFirst()
-                            .map(AdminOrderListDto::getOrderDate)
-                            .orElse(null); //findFirst()사용 시 예외처리나 null처리 필수
-                    List<AdminOrderListDto> orderListDtos = entry.getValue(); //Map의 value값
+                            .map(AdminOrderList.AdminOrdersListDto::getOrderDate)
+                            .orElse(null);
 
+                    List<AdminOrderList.AdminOrdersListDto> orderListDtos = entry.getValue();
 
-                    List<AdminOrderItem> adminOrderItems = orderListDtos.stream()
-                            .map(dto -> new AdminOrderItem(
+                    //주문당 구매한 상품은 여러 개일 수 있으므로 구매 상품만 List에 담아준다.
+                    List<AdminOrderList.AdminOrdersListDto.AdminOrderItem> adminOrderItems = orderListDtos.stream()
+                            .map(dto -> new AdminOrderList.AdminOrdersListDto.AdminOrderItem(
                                     dto.getGoodsId(),
                                     dto.getGoodsName(),
                                     dto.getGoodsPrice(),
@@ -308,11 +343,9 @@ public class AdminOrderRepositoryImpl implements AdminOrderRepositoryCustom{
                             ))
                             .collect(Collectors.toList());
 
-                    System.out.println(adminOrderItems.toString()+"!@@@@@@@@@@@@@");
-
-                    AdminOrderInfo adminOrderInfo = orderListDtos.stream()
-                            .findFirst() // 중복되는 주문자 정보가 동일하다면 첫 번째 정보만 가져옴
-                            .map(dto -> new AdminOrderInfo(
+                    AdminOrderList.AdminOrdersListDto.AdminOrderInfo adminOrderInfo = orderListDtos.stream()
+                            .findFirst() //중복 조회된 값은 하나로 처리한다.
+                            .map(dto -> new AdminOrderList.AdminOrdersListDto.AdminOrderInfo(
                                     dto.getOrderId(),
                                     dto.getUserId(),
                                     dto.getUserAccount(),
@@ -323,17 +356,21 @@ public class AdminOrderRepositoryImpl implements AdminOrderRepositoryCustom{
                                     dto.getOrderUserName(),
                                     dto.getOrderUserPhone(),
                                     dto.getOrderDate(),
-                                    adminOrderItems // 주문 목록을 AdminOrderInfo 안에 포함
+                                    adminOrderItems //주문한 상품리스트
                             ))
                             .orElse(null);
 
-                    return new AdminOrderListResultDto(orderListId,payDatetime,adminOrderInfo);
+                    return new AdminOrderList.AdminOrdersListDto.AdminOrderListResultDto(orderListId,payDatetime,adminOrderInfo);
                 })
-                .collect(Collectors.toList()); //리스트로 변환(Map에서 key값을 버리고 value값으로 리스트로 만든다.)
+                .collect(Collectors.toList());
     }
 
 
-    //관리자 주문 번호/주문자검색
+    /**
+     * 관리자 페이지 - 주문 목록 검색 요건
+     * @param searchForm 검색 정보가 들어있는 form
+     * @return
+     */
     private BooleanExpression cateKeywordEq(SearchForm searchForm){
         if(StringUtils.hasText(searchForm.getCate())&&StringUtils.hasText(searchForm.getKeyword())){
 
@@ -351,11 +388,16 @@ public class AdminOrderRepositoryImpl implements AdminOrderRepositoryCustom{
         return orders.id.isNotNull();
     }
 
-    //날짜 검색
+    /**
+     * 관리자 페이지 - 주문 목록 검색(날짜)
+     * @param startDate 시작날짜
+     * @param endDate 종료날짜
+     * @return
+     */
     private BooleanExpression dateEq(String startDate, String endDate) {
 
+        //날짜 정보가 입력되지 않은 경우
         if ((startDate == null || startDate.isEmpty()) && (endDate == null || endDate.isEmpty())) {
-            System.out.println("둘 다 null이야");
             return null;
         }
 
@@ -364,6 +406,7 @@ public class AdminOrderRepositoryImpl implements AdminOrderRepositoryCustom{
         LocalDateTime end = null;
 
         try {
+
             if (!startDate.isEmpty()) {
                 LocalDate localStartDate = LocalDate.parse(startDate, formatter);
                 start = localStartDate.atStartOfDay();
@@ -374,6 +417,8 @@ public class AdminOrderRepositoryImpl implements AdminOrderRepositoryCustom{
                 end = localEndDate.atTime(LocalTime.MAX);
             }
 
+            //시작날짜와 종료날짜가 서로 뒤바뀐채로 들어온 경우
+            //ex) 시작날짜 2023-11-11 / 종료날짜 2023-10-10
             if (start != null && end != null && end.isBefore(start)) {
                 LocalDateTime temp = end;
                 end = start;

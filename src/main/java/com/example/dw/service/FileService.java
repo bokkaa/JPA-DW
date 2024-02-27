@@ -96,7 +96,13 @@ public class FileService {
     private final OrderReviewImgRepository orderReviewImgRepository;
     private final OrderReviewImgRepositoryCustom orderReviewImgRepositoryCustom;
 
-    //상품 메인 사진 로컬서버 저장
+
+    /**
+     * 이미지 파일 로컬 서버 저장
+     * @param file 입력된 상품 메인 사진 1장
+     * @return 이미지 등록 form 저장
+     * @throws IOException 이미지 파일 예외처리
+     */
     @Transactional
     public GoodsMainImgForm saveImg(MultipartFile file) throws IOException {
 
@@ -123,7 +129,12 @@ public class FileService {
 
     }
 
-    //상품 메인 사진 DB 저장
+    /**
+     * 이미지 DB 저장 처리
+     * @param file 입력된 상품 메인 사진 1장
+     * @param id 상품ID
+     * @throws IOException 이미지 파일 예외처리
+     */
     @Transactional
     public void registerMainImg(MultipartFile file, Long id) throws IOException {
 
@@ -142,7 +153,12 @@ public class FileService {
     }
 
 
-    //상품 상세 사진 로컬서버 저장(최대 4장)
+    /**
+     * 이미지 파일 로컬 서버 저장
+     * @param file 상품 상세 이미지
+     * @return
+     * @throws IOException 이미지 파일 예외처리
+     */
     @Transactional
     public GoodsDetailImgForm saveDetailImg(MultipartFile file) throws IOException {
 
@@ -168,7 +184,12 @@ public class FileService {
 
     }
 
-    //상품 상세 사진 DB 저장
+    /**
+     * 이미지 DB 저장 처리
+     * @param files 입력된 상품 상세 사진들 최대 4장
+     * @param id 상품ID
+     * @throws IOException 이미지 파일 예외처리
+     */
     @Transactional
     public void registerDetailImg(List<MultipartFile> files, Long id) throws IOException {
 
@@ -185,13 +206,19 @@ public class FileService {
     }
 
 
-    //경로설정
+    /**
+     * 
+     * @return 이미지 저장 경로 설정
+     */
     private String getUploadPath() {
         return new SimpleDateFormat("yyyy/MM/dd").format(new Date());
     }
 
 
-    //메인 사진 삭제
+    /**
+     * 상품 메인 사진 삭제
+     * @param goodsId 상품ID
+     */
     @Transactional
     public void removeMainImg(Long goodsId) {
         if (goodsId == null) {
@@ -205,6 +232,7 @@ public class FileService {
         File mainImgTarget = new File(mainImg, adminGoodsMainImgDto.getGoodsMainImgPath() + "/" + adminGoodsMainImgDto.getGoodsMainImgUuid() + "_" + adminGoodsMainImgDto.getGoodsMainImgName());
 
 
+        //이미 사진이 존재한다면 삭제
         if (mainImgTarget.exists()) {
             mainImgTarget.delete();
 
@@ -215,7 +243,10 @@ public class FileService {
 
     }
 
-    //상세 사진 삭제
+    /**
+     * 상품 상세 사진 삭제
+     * @param goodsId 상품ID
+     */
     @Transactional
     public void removeDetailImgs(Long goodsId) {
 
@@ -229,7 +260,7 @@ public class FileService {
         for (AdminGoodsDetailImgDto goodsDetailImg : adminGoodsDetailImgDtos) {
             File detailImgTarget = new File(mainImg, goodsDetailImg.getGoodsDetailImgPath() + "/" + goodsDetailImg.getGoodsDetailImgUuid() + "_" + goodsDetailImg.getGoodsDetailImgName());
 
-
+            //이미 사진이 존재한다면 삭제
             if (detailImgTarget.exists()) {
                 detailImgTarget.delete();
 

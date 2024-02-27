@@ -29,6 +29,11 @@ public class MailService {
        number = (int)(Math.random() * (90000)) + 100000;// (int) Math.random() * (최댓값-최소값+1) + 최소값
     }
 
+    /**
+     * 이메일 인증번호 내용 양식 설정
+     * @param mail 이메일 주소
+     * @return 이메일 내용 양식
+     */
     public MimeMessage CreateMail(String mail){
         createNumber();
         MimeMessage message = javaMailSender.createMimeMessage();
@@ -49,6 +54,11 @@ public class MailService {
         return message;
     }
 
+    /**
+     * 이메일 전송
+     * @param mail 입력된 이메일 주소
+     * @return 입력된 이메일 주소로 인증번호 전송
+     */
     public int sendMail(String mail){
         MimeMessage message = CreateMail(mail);
 
@@ -57,7 +67,12 @@ public class MailService {
         return number;
     }
 
-public static String tempPassword(int leng){
+    /**
+     * 인증번호 설정
+     * @param leng 임시번호 자리수
+     * @return 설정된 인증번호
+     */
+    public static String tempPassword(int leng){
    	int index = 0;
    	char[] charSet = new char[] {
    			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
@@ -79,12 +94,17 @@ public static String tempPassword(int leng){
    	}
 
    	return password.toString();
-       //StringBuffer를 String으로 변환해서 return 하려면 toString()을 사용하면 된다.
+       //StringBuffer를 String으로 변환해서 return 하려면 toString()을 사용
    }
 
 
-
-   //계정 정보 작성 메소드 ( userAccount )
+    /**
+     * 전송된 인증번호를 입력한 후 올바른 인증번호일 경우 계정 정보 재전송
+     * @param userName 입력된 회원 이름
+     * @param mail 입력된 회원 이메일 주소
+     * @param userPhone 입력된 회원 휴대전화 번호
+     * @return 기입된 정보와 일치하는 계정 정보
+     */
    public MimeMessage accountMail(String userName,String mail, String userPhone){
 
         Optional<Users> user = usersRepository.findUserAccountByUserNameAndUserEmailAndUserPhone(userName, mail, userPhone);
@@ -113,7 +133,13 @@ public static String tempPassword(int leng){
         return message;
    }
 
-   //작성된 계정 정보 전송 메소드( userAccount )
+    /**
+     * 기입된 정보로 인증번호 전송 - 계정찾기
+     * @param userName 입력된 회원 이름
+     * @param mail 입력된 회원 이메일 주소
+     * @param userPhone 입력된 회원 휴대전화 번호
+     * @return 인증번호 
+     */
    public int reworkAccountMail(String userName,String mail, String userPhone){
         MimeMessage message = accountMail(userName, mail, userPhone);
         javaMailSender.send(message);
@@ -121,7 +147,13 @@ public static String tempPassword(int leng){
    }
 
 
-
+    /**
+     * 임시 비밀번호 전송 및 임시 비밀번호로 해당 계정 비밀번호 수정
+     * @param userName 기입된 회원 이름
+     * @param userAccount 기입된 회원 계정
+     * @param mail 기입된 회원 이메일 주소
+     * @return 임시비밀번호 전송
+     */
     //임시비밀번호 전송 및 임시비밀번호로 수정
     public MimeMessage pwMail(String userName, String userAccount, String mail){
 
@@ -150,7 +182,14 @@ public static String tempPassword(int leng){
         return message;
     }
 
-    //임시비밀번호로 비밀번호 수정
+    /**
+     * 기입된 정보와 일치하는 계정의 비밀번호를 임시 비밀번호로 수정
+     * @param userName 기입된 회원 이름
+     * @param userAccount 기입된 회원 계정
+     * @param mail 기입된 회원 이메일 주소
+     * @param rePassword 임시 비밀번호
+     * @return 회원 정보
+     */
     public Users updatePw(String userName, String userAccount, String mail, String rePassword) {
 
         Users users = usersRepository.findByUserNameAndUserAccountAndUserEmail(userName, userAccount, mail).get();
@@ -163,6 +202,13 @@ public static String tempPassword(int leng){
     }
 
 
+    /**
+     * 기입된 정보로 인증번호 전송 - 비밀번호 찾기
+     * @param userName 기입된 회원 이름
+     * @param userAccount 기입된 회원 계정
+     * @param mail 기입된 회원 이메일 주소
+     * @return 인증번호 전송
+     */
     public int reworkPwMail(String userName, String userAccount, String mail){
 
         MimeMessage message = pwMail(userName, userAccount, mail);

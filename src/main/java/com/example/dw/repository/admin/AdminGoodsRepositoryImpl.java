@@ -36,8 +36,13 @@ public class AdminGoodsRepositoryImpl implements AdminGoodsRepositoryCustom{
 
     private final JPQLQueryFactory jpqlQueryFactory;
 
-    
-    //상품 리뷰 리스트
+
+    /**
+     * 관리자 페이지 상품 리뷰 목록
+     * @param pageable 페이징처리를 위한 Pageable
+     * @param searchReviewForm 검색 카테고리, 키워드
+     * @return 상품 리뷰 목록
+     */
     @Override
     public Page<AdminGoodsReview.AdminGoodsReviewList.AdminGoodsReviewResultList> reviewList(Pageable pageable, SearchReviewForm searchReviewForm) {
 
@@ -79,8 +84,11 @@ public class AdminGoodsRepositoryImpl implements AdminGoodsRepositoryCustom{
 
         List<AdminGoodsReview.AdminGoodsReviewList.AdminGoodsReviewResultList> result = lists.stream()
                 .map(goodsReview ->  new AdminGoodsReview.AdminGoodsReviewList.AdminGoodsReviewResultList(
+
                 goodsReview.getGoodsReviewId(),
+
                 new AdminGoodsReview.AdminGoodsReviewList(
+
                         goodsReview.getGoodsCategory(),
                         goodsReview.getGoodsName(),
                         goodsReview.getGoodsReviewContent(),
@@ -94,7 +102,12 @@ public class AdminGoodsRepositoryImpl implements AdminGoodsRepositoryCustom{
         return new PageImpl<>(result, pageable, getTotal);
     }
 
-    //상품 리뷰 상세
+
+    /**
+     * 상품 기본 정보 및 리뷰 정보
+     * @param orderReviewId 주문리뷰ID
+     * @return 해당 주문리뷰ID와 일치하는 상품 기본 정보 및 리뷰 정보
+     */
     @Override
     public AdminGoodsReview.AdminGoodsReviewDetail.AdminGoodsReviewResultDetail goodsReviewDetail(Long orderReviewId) {
 
@@ -186,7 +199,11 @@ public class AdminGoodsRepositoryImpl implements AdminGoodsRepositoryCustom{
 
     }
 
-    //상품 리뷰 관리자 답변 가져오기
+    /**
+     * 상품 리뷰에 등록된 관리자 답변 조회
+     * @param orderReviewId 주문 리뷰ID
+     * @return 해당 주문 리뷰ID와 일치하는 상품 리뷰
+     */
     @Override
     public AdminGoodsReview.AdminGoodsReviewApply goodsReviewReplyList(Long orderReviewId) {
         return jpqlQueryFactory.select(
@@ -203,20 +220,35 @@ public class AdminGoodsRepositoryImpl implements AdminGoodsRepositoryCustom{
     }
 
 
+    /**
+     * 리뷰 상품 검색 카테고리
+     * @param searchReviewForm 상품 카테고리
+     * @return
+     */
     private BooleanExpression cateGoryNameEq(SearchReviewForm searchReviewForm){
         return StringUtils.hasText(searchReviewForm.getCate()) ? orderItem.goods.goodsCategory.stringValue().eq(searchReviewForm.getCate()) : null;
     }
 
+    /**
+     * 리뷰 상품 검색 키워드
+     * @param searchReviewForm 상품명 키워드
+     * @return
+     */
     private BooleanExpression goodsNameEq(SearchReviewForm searchReviewForm){
         return StringUtils.hasText(searchReviewForm.getKeyword()) ? orderItem.goods.goodsName.containsIgnoreCase(searchReviewForm.getKeyword()) : null;
     }
 
 
+    /**
+     * 상품 리뷰 답변 완료 / 대기 상태값
+     * @param searchReviewForm 답변 상태값이 담긴 form
+     * @return
+     */
     private BooleanExpression createRecruitmentStatusCondition(SearchReviewForm searchReviewForm) {
         try{
-            if (searchReviewForm.getAdminReplyState().equals("0")) { // 모집중
+            if (searchReviewForm.getAdminReplyState().equals("0")) { // 답변 대기중
                 return orderReview.adminReplyState.eq(0);
-            } else if (searchReviewForm.getAdminReplyState().equals("1")) { // 모집완료
+            } else if (searchReviewForm.getAdminReplyState().equals("1")) { // 답변 완료
                 return orderReview.adminReplyState.eq(1);
             } else { // 전체보기 ('' 인 경우)
                 return null; // 특정 조건 없이 모든 결과 반환

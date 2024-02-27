@@ -28,6 +28,13 @@ public class AdminOrderController {
     }
 
 
+    /**
+     * 관리자 페이지 - 주문 상세
+     * @param userId 회원ID
+     * @param orderId 주문ID
+     * @param model model
+     * @return 주문 상세 정보
+     */
     @GetMapping("/orderDetail/{userId}/{orderId}")
     public String orderDetail(
             @PathVariable("userId") Long userId,

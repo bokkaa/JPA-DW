@@ -29,6 +29,7 @@ $('.user-list').on('click','.recover-btn', function (){
     }
 })
 
+//카테고리 , 키워드
 function searchUserForm(){
 
     let cate = $('#search-cate').val();
@@ -61,13 +62,22 @@ $(document).ready(function (){
 
 
 //회원 상태에 따라 리스트 불러오는 함수
+/**
+ *
+ * @param userState 회원상태 변수 ( 0: 탈퇴 상태 / 1 : 회원 상태)
+ */
 function updateBasedOnState(userState) {
     updateUserState(0, userState, searchUserForm(), showUserList);
 }
 
 
-
-
+/**
+ *
+ * @param page 페이징 번호 변수
+ * @param userStateValue 회원 상태 변수
+ * @param searchForm 검색 카테고리, 키워드 함수
+ * @param callback
+ */
 function updateUserState(page, userStateValue, searchForm, callback) {
         $.ajax({
             url: `/admins/userList/${page}`,

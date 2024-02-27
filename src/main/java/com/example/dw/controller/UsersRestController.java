@@ -11,7 +11,11 @@ public class UsersRestController {
 
     private final UsersService usersService;
 
-    //아이디 중복체크
+    /**
+     * 회원 계정 중복 검사
+     * @param userAccount 희망하는 회원계정
+     * @return 가입 존재 여부 True or False
+     */
     @PostMapping("/users/account/check")
     public boolean checkAccountDuplication(@RequestParam(value = "userAccount") String userAccount) {
         if (userAccount == null) {
@@ -27,7 +31,30 @@ public class UsersRestController {
         }
     }
 
-    //이메일 중복 체크
+    /**
+     * 회원 휴대전화 중복 검사
+     * @param userPhone 입력된 휴대전화 번호
+     * @return 가입 존재 여부 True or False
+     */
+    @PostMapping("/users/phone/check")
+    public boolean checkPhoneDuplication(@RequestParam("userPhone") String userPhone){
+        if (userPhone == null) {
+            throw new IllegalArgumentException("폰 번혼 누락");
+
+        }
+        System.out.println("기입된 전화번호 : " + userPhone);
+        if(usersService.existsByUserPhone(userPhone) == true ){
+            return false;
+        }else {
+            return true;
+        }
+    }
+
+    /**
+     * 회원 이메일 중복 검사
+     * @param userEmail 입력된 이메일 주소
+     * @return 가입 존재 여부 True or False
+     */
     @PostMapping("/users/email/check")
     public boolean checkEmailDuplication(@RequestParam("userEmail") String userEmail){
         if (userEmail == null) {
@@ -43,20 +70,7 @@ public class UsersRestController {
         }
     }
 
-    //휴대폰 번호 중복 체크
-    @PostMapping("/users/phone/check")
-    public boolean checkPhoneDuplication(@RequestParam("userPhone") String userPhone){
-        if (userPhone == null) {
-            throw new IllegalArgumentException("폰 번혼 누락");
 
-        }
-        System.out.println("기입된 전화번호 : " + userPhone);
-        if(usersService.existsByUserPhone(userPhone) == true ){
-            return false;
-        }else {
-            return true;
-        }
-    }
 
 
 }

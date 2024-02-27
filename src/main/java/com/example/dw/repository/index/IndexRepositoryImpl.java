@@ -25,12 +25,15 @@ public class IndexRepositoryImpl implements IndexRepositoryCustom{
     private static final int MAX_QUESTION_RESULTS = 3;
     private static final int MAX_FREE_RESULTS = 5;
 
-    //해당 날짜가 껴있는 주간날짜 구하기
+    //해당 날짜가 들어있는 주간날짜 구하기
     LocalDateTime now = LocalDateTime.now();
     LocalDateTime thisWeekStart = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).toLocalDate().atStartOfDay();
     LocalDateTime thisWeekEnd = now.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)).toLocalDate().atTime(23, 59, 59);
 
-    //주간 Qna인기글 Top3
+    /**
+     * 주간 인기 Qna - Top3 조회수 기준
+     * @return
+     */
     @Override
     public List<WeeklyQnaListDto> weeklyQnaList() {
 
@@ -67,8 +70,10 @@ public class IndexRepositoryImpl implements IndexRepositoryCustom{
 
     }
 
-
-    //주간 자유게시판 인기글 Top3
+    /**
+     * 주간 자유게시판 인기글 - Top3 조회수 기준
+     * @return
+     */
     @Override
     public List<WeeklyFreeBoardList> weeklyFreeBoardList() {
 

@@ -14,19 +14,25 @@ public interface UsersRepository extends JpaRepository<Users, Long> {
     //이메일 중복체크
     boolean existsByUserEmail(String userEmail);
 
+
     //닉네임 중복 체크
     boolean existsByUserNickName(String userNickName);
+
 
 
     //계정 정보 찾기
     boolean existsByUserNameAndUserEmailAndUserPhone(String userName, String userEmail, String userPhone);
 
+
+    //아이디찾기
+    Optional<Users> findUserAccountByUserNameAndUserEmailAndUserPhone(String userName, String userEmail, String userPhone);
+
+    //비밀번호 찾기
     Optional<Users> findByUserNameAndUserAccountAndUserEmail(String userName, String userAccount, String userEmail);
 
 
 
-    //아이디찾기
-    Optional<Users> findUserAccountByUserNameAndUserEmailAndUserPhone(String userName, String userEmail, String userPhone);
+
 
     //비밀번호 찾기
     boolean existsByUserNameAndUserAccountAndUserEmail(String userName, String userAccount, String userEmail);

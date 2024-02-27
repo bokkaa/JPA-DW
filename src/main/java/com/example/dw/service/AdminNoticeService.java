@@ -46,17 +46,11 @@ public class AdminNoticeService {
     }
 
 
-    //공지사항 작성
-    @Transactional
-    public Long register(NoticeBoardForm noticeBoardForm){
-
-         NoticeBoard noticeBoard = noticeBoardRepository.save(noticeBoardForm.toEntity());
-
-         return noticeBoard.getId();
-
-    }
-
-    //Faq 작성
+    /**
+     * FAQ 등록
+     * @param faqBoardForm 작성 정보가 담겨져 있는 form
+     * @return 성공적으로 등록 시 해당 게시물의 ID값 반환
+     */
     @Transactional
     public Long faqRegister(FaqBoardForm faqBoardForm){
 
@@ -67,18 +61,34 @@ public class AdminNoticeService {
     }
 
 
-
-    //Faq 상세 보기
+    /**
+     * FAQ 상세보기
+     * @param faqBoardId FAQ ID
+     * @return FAQ 상세
+     */
     @Transactional
     public FaqBoard faqDetail(Long faqBoardId){
+
+        if (faqBoardId == null) {
+            throw new IllegalArgumentException("FAQ 번호 누락");
+        }
 
         FaqBoard detail = faqBoardRepository.findById(faqBoardId).get();
         return Optional.ofNullable(detail).orElseThrow(()->{throw new IllegalArgumentException("존재하지 않음");});
     }
 
-    //faq 수정
+    /**
+     * FAQ 수정
+     * @param faqBoardForm 수정 정보가 담긴 form
+     * @param id FAQ ID
+     * @return
+     */
     @Transactional
     public FaqBoard faqModify(FaqBoardForm faqBoardForm, Long id) {
+
+        if (id == null) {
+            throw new IllegalArgumentException("FAQ 번호 누락");
+        }
 
         FaqBoard faqBoard = faqBoardRepository.findById(id).get();
         faqBoard.update(faqBoardForm);
@@ -86,7 +96,10 @@ public class AdminNoticeService {
         return Optional.ofNullable(faqBoard).orElseThrow(()->{throw new IllegalArgumentException("존재하지 않음");});
     }
 
-    //faq 삭제
+    /**
+     * FAQ 삭제
+     * @param id FAQ ID
+     */
     @Transactional
     public void faqDelete(Long id){
 
@@ -98,9 +111,31 @@ public class AdminNoticeService {
 
     }
 
-    //공지사항 상세 보기
+    /**
+     * 공지사항 작성
+     * @param noticeBoardForm 작성 정보가 담겨져있는 form
+     * @return 성공적으로 등록 시 해당 공지사항 ID값 반환
+     */
+    @Transactional
+    public Long register(NoticeBoardForm noticeBoardForm){
+
+        NoticeBoard noticeBoard = noticeBoardRepository.save(noticeBoardForm.toEntity());
+
+        return noticeBoard.getId();
+
+    }
+
+    /**
+     * 공지사항 상세보기
+     * @param id 공지사항 ID
+     * @return
+     */
     @Transactional
     public NoticeBoard noticeDetail(Long id){
+
+        if (id == null) {
+            throw new IllegalArgumentException("공지사항 번호 누락");
+        }
         NoticeBoard detail = noticeBoardRepository.findById(id).get();
 
         return Optional.ofNullable(detail).orElseThrow(()->{
@@ -108,9 +143,18 @@ public class AdminNoticeService {
         });
     }
 
-    //공지사항 수정
+    /**
+     * 공지사항 수정
+     * @param noticeBoardForm 수정 정보가 담겨져 있는 form
+     * @param id 공지사항 ID
+     * @return
+     */
     @Transactional
     public NoticeBoard noticeModify(NoticeBoardForm noticeBoardForm,Long id){
+
+        if (id == null) {
+            throw new IllegalArgumentException("공지사항 번호 누락");
+        }
 
         //영속상태로
         NoticeBoard noticeBoard = noticeBoardRepository.findById(id).get();
@@ -123,7 +167,10 @@ public class AdminNoticeService {
         });
     }
 
-    //공지사항 삭제
+    /**
+     * 공지사항 삭제
+     * @param id 공지사항 ID
+     */
     @Transactional
     public void noticeDelete(Long id ){
 

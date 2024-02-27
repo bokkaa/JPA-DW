@@ -30,14 +30,24 @@ public class WalkBoardApiController {
     @Value("${file.user}")
     private String userImg;
 
-    //세션값 확인
+    
+    /**
+     * 로그인 세션 상태 확인
+     * @param session session 객체
+     * @return 회원 ID
+     */
     @PostMapping("/sessionOk")
     public Long checkSession(HttpSession session){
 
         return (Long)session.getAttribute("userId");
     }
 
-    //산책메이트 모집글 리스트
+    /**
+     * 산책게시글 리스트
+     * @param page page 변수
+     * @param searchLocationForm 검색정보가 담긴 from
+     * @return 산책게시글 리스트
+     */
     @GetMapping("/walkList/{page}")
     public Page<WalkMateListDto> getWalkList(@PathVariable("page") int page,
                                              SearchLocationForm searchLocationForm){
@@ -46,7 +56,12 @@ public class WalkBoardApiController {
         return walkingMateService.walkMateList(page, searchLocationForm);
     }
 
-    //산책글 작성확인(동일요일 1회)
+    /**
+     * 산책게시글 작성제한(희망 요일 1회 작성 가능)
+     * @param userId 회원ID
+     * @param walkingMateDate 희망 신청일짜
+     * @return 작성여부 확인(0 or 1)
+     */
     @PostMapping("/limitCheck/{userId}")
     public Integer limitCheck(@PathVariable("userId") Long userId,
                            String walkingMateDate){
@@ -58,16 +73,11 @@ public class WalkBoardApiController {
 
 
 
-
-    //산책메이트 상세보기 댓글 등록
-    @PostMapping("/detailReply")
-    public void registerReply(WalkingMateCommentForm walkingMateCommentForm){
-
-        walkingMateService.walkDetailReply(walkingMateCommentForm);
-
-    }
-
-    //산책메이트 상세보기 댓글 목록
+    /**
+     * 산책게시글 댓글 리스트
+     * @param walkBoardId 산책게시글ID
+     * @return 해당 산책게시글ID에 등록된 댓글 리스트
+     */
     @GetMapping("/showReplyList/{walkBoardId}")
     public List<WalkMateDetailReplyDto> showReplyList(
             @PathVariable("walkBoardId") Long walkBoardId
@@ -77,14 +87,34 @@ public class WalkBoardApiController {
 
     }
 
-    //산책메이트 상세보기 댓글 유저 사진
+    /**
+     * 산책게시글 댓글 등록
+     * @param walkingMateCommentForm 산책게시글 댓글정보가 담긴 form
+     */
+    @PostMapping("/detailReply")
+    public void registerReply(WalkingMateCommentForm walkingMateCommentForm){
+
+        walkingMateService.walkDetailReply(walkingMateCommentForm);
+
+    }
+
+
+    /**
+     * 산책게시글 댓글 회원 사진
+     * @param userImgPath 회원 사진 ID
+     * @return 회원 사진 경로
+     * @throws IOException
+     */
     @GetMapping("/walkDetailImg")
     public byte[] getEmpImg(String userImgPath) throws IOException {
         return FileCopyUtils.copyToByteArray(new File(userImg, userImgPath));
     }
 
 
-    //산책메이트 상세보기 댓글 수정
+    /**
+     * 산책게시글 댓글 수정
+     * @param walkingMateCommentForm 댓글 수정 정보가 담긴 form
+     */
     @PatchMapping("/walkReplyModify")
     public void modifyReply(WalkingMateCommentForm walkingMateCommentForm){
 
@@ -94,8 +124,10 @@ public class WalkBoardApiController {
 
     }
 
-
-    //산책메이트 상세보기 댓글 삭제
+    /**
+     * 산책게시글 댓글 삭제
+     * @param walkCommentId 산책게시글 댓글ID
+     */
     @DeleteMapping("/walkReplyDelete/{walkCommentId}")
     public void deleteReply(@PathVariable("walkCommentId") Long walkCommentId){
 
@@ -103,8 +135,12 @@ public class WalkBoardApiController {
     }
 
 
-
-// 산책메이트 신청 중복검사
+    /**
+     * 산책메이트 신청 중복검사
+     * @param walkMateId 산책게시글ID
+     * @param session session 객체
+     * @return 신청 정보 (0 or 1)
+     */
     @GetMapping("/applyCheck/{walkMateId}")
     public Long applyCheck(@PathVariable("walkMateId") Long walkMateId, HttpSession session){
 
@@ -114,7 +150,10 @@ public class WalkBoardApiController {
     }
 
 
-//    산책메이트 신청
+    /**
+     * 산책메이트 신청
+     * @param walkingMateStateForm 신청정보가 담긴 form
+     */
     @GetMapping("/applyWalkMate")
     public void applyWalkMate(WalkingMateStateForm walkingMateStateForm){
 

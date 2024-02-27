@@ -34,7 +34,11 @@ public class IndexApiController {
     }
 
 
-    //카테고리별 상품 리스트
+    /**
+     * 상품 카테고리별 상품 목록
+     * @param goodsCategory 상품 카테고리
+     * @return
+     */
     @GetMapping("/goodsByCate")
     public List<IndexGoodsByCateDto> goodsByCategory(GoodsCategory goodsCategory){
 
@@ -44,7 +48,12 @@ public class IndexApiController {
 
     }
 
-    //상품 리스트 사진
+    /**
+     * 상품 카테고리별 상품 사진
+     * @param fileFullPath 상품 사진 경로
+     * @return
+     * @throws IOException
+     */
     @GetMapping("/goodsImg")
     public byte[] getEmpImg(String fileFullPath) throws IOException {
         return FileCopyUtils.copyToByteArray(new File(goodsImg, fileFullPath));

@@ -1,23 +1,31 @@
 package com.example.dw.repository.community;
 
-import com.example.dw.domain.dto.community.WalkDetailStateDto;
 import com.example.dw.domain.entity.walkingMate.WalkingMateState;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
-
 public interface WalkingMateStateRepository extends JpaRepository<WalkingMateState, Long>
 
 {
 
-
+    /**
+     * 신청 확인
+     * @param walkingMateId 산책게시글ID
+     * @param userId 회원ID
+     * @return
+     */
     @Query("select wm.id from WalkingMateState wm where wm.walkingMate.id=:walkingMateId and wm.users.id=:userId")
     Long applyCheck(@Param("walkingMateId") Long walkingMateId,
                     @Param("userId") Long userId);
 
+    /**
+     * 신청 상태 확인
+     * @param userId 회원ID
+     * @param walkMateId 산책게시글ID
+     * @return 신청 상태
+     */
     @Query("select wm.users.id from WalkingMateState wm where wm.state=1 and wm.users.id=:userId and wm.walkingMate.id=:walkMateId")
     Long applyState(@Param("userId") Long userId,
                     @Param("walkMateId") Long walkMateId);
@@ -33,6 +41,7 @@ public interface WalkingMateStateRepository extends JpaRepository<WalkingMateSta
     void upDateWalkMateState(@Param("walkingmatestateId") Long walkingmatestateId);
 
     // walkingmatestate에 신청한 stateId를 통해 해당 데이터를 찾기
+    // 비신청 상태로 변경
     @Modifying
     @Query("update WalkingMateState wms set wms.state=0 where wms.id=:walkingmatestateId")
     void downWalkMateState(@Param("walkingmatestateId") Long walkingmatestateId);

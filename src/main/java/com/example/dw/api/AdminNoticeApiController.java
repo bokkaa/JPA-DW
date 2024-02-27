@@ -22,7 +22,12 @@ public class AdminNoticeApiController {
     private final FaqBoardRepositoryCustom faqBoardRepositoryCustom;
     private final NoticeBoardRepositoryCustom noticeBoardRepositoryCustom;
 
-    //faq조회
+    /**
+     * faq 게시글 목록
+     * @param page page 변수
+     * @param searchForm 검색정보가 담긴 form
+     * @return
+     */
     @GetMapping("/faqList/{page}")
     public Page<AdminFaqBoardDto> findFaqList(
             @PathVariable("page") int page,
@@ -37,7 +42,12 @@ public class AdminNoticeApiController {
         return result;
     }
 
-    //공지사항 조회
+    /**
+     * 공지사항 목록
+     * @param page page 변수
+     * @param searchForm 검색 정보가 담긴 form
+     * @return
+     */
     @GetMapping("/noticeList/{page}")
     public Page<AdminNoticeBoardDto> findNoticeList(
             @PathVariable("page") int page,

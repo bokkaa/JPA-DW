@@ -22,11 +22,18 @@ public class IndexController {
     private final IndexService indexService;
 
     //Index
+
+    /**
+     * 메인 페이지 - 최근 산책게시글, 주간 인기글(Qna / 자유게시판), 카테고리별 상품, 최근 본 상품
+     * @param session session 객체
+     * @param model model 객체
+     * @return 메인 페이지
+     */
     @GetMapping("")
     public String index(HttpSession session, Model model){
 
-        //산책글 리스트
 
+        //최근 산책게시글
         List<IndexWalkMateDto> indexWalkMateDtoList = indexService.indexWalkMateList();
 
         model.addAttribute("indexWalkList", indexWalkMateDtoList);

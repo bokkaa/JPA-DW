@@ -42,15 +42,73 @@ public class UsersRepositoryImpl implements UsersRepositoryCustom {
     private final JPAQueryFactory jpaQueryFactory;
 
 
+    /**
+     *
+     * @param pageable 페이징 처리를 위한 Pageable 변수
+     * @param userState 회원 가입 상태(가입 중 / 탈퇴 상태)
+     * @param cate 아아디, 이름, 이메일 등 검색 카테고리
+     * @param keyword 검색 키워드
+     * @return 가입 회원 목록 및 탈퇴 회원 목록
+     */
     @Override
     public Page<UserListDto> findByAll(Pageable pageable, String cate, String keyword, String userState) {
 
-        List<UserListDto> content = getUserList(pageable, cate, keyword ,userState);
-        Long counts = getCount(cate, keyword ,userState);
 
-        return new PageImpl<>(content, pageable, counts);
+        List<UserListDto> userStanInfo = jpaQueryFactory.select(new QUserListDto(
+                users.id,
+                users.userAccount,
+                users.userName,
+                users.userEmail,
+                users.userPhone,
+                users.userJoinDate,
+                users.userState,
+                jpaQueryFactory.select(
+                        question.count()
+                )
+                        .from(question)
+                        .where(question.users.id.eq(users.id)),
+                jpaQueryFactory.select(
+                        freeBoard.count()
+                )
+                        .from(freeBoard)
+                        .where(freeBoard.users.id.eq(users.id)),
+                jpaQueryFactory.select(
+                        walkingMate.count()
+                )
+                        .from(walkingMate)
+                        .where(walkingMate.users.id.eq(users.id))
+
+        ))
+                .from(users)
+                .where(
+                        userStateEq(userState),
+                        cateEq(cate, keyword)
+                )
+                .groupBy(users.id, users.userAccount, users.userName, users.userEmail, users.userPhone, users.userJoinDate, users.userState)
+                .orderBy(users.id.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+
+
+
+         Long counts = jpaQueryFactory.select(users.count())
+                 .from(users)
+                 .where(
+                         userStateEq(userState),
+                         cateEq(cate, keyword)
+                 )
+                 .fetchOne();
+
+        return new PageImpl<>(userStanInfo, pageable, counts);
     }
-    //관리자페이지 회원 상세보기
+
+    /**
+     * 회원 상세 정보 가져오기
+     * @param userId 회원ID
+     * @return 회원 상세 정보
+     */
     @Override
     public AdminUserDetailResultDto findByUserId(Long userId) {
 
@@ -96,15 +154,39 @@ public class UsersRepositoryImpl implements UsersRepositoryCustom {
                 new AdminUserDetailResultDto(
 
                         userDetailInfo.stream().findFirst().map(
-                                o-> new AdminUserDetailInfo(o.getId(), o.getUserAccount(), o.getUserName(), o.getUserNickName(), o.getUserPhone(),
-                                        o.getUserEmail(), o.getUserJoinDate(), o.getZipCode(), o.getAddress(), o.getDetail(), o.getIntro(),
-                                        new AdminUserDetailImgDto(o.getUserImgId(), o.getUserImgPath(), o.getUserImgUuid(), o.getUserImgName()))).get()
-
+                                o-> new AdminUserDetailInfo(
+                                        o.getId(),
+                                        o.getUserAccount(),
+                                        o.getUserName(),
+                                        o.getUserNickName(),
+                                        o.getUserPhone(),
+                                        o.getUserEmail(),
+                                        o.getUserJoinDate(),
+                                        o.getZipCode(),
+                                        o.getAddress(),
+                                        o.getDetail(),
+                                        o.getIntro(),
+                                        new AdminUserDetailImgDto(
+                                                o.getUserImgId(),
+                                                o.getUserImgPath(),
+                                                o.getUserImgUuid(),
+                                                o.getUserImgName()))).get()
                         ,
+                        userDetailInfo.stream().collect(
+                                mapping(r->new AdminUserPetDetailDto(
+                                        r.getPetId(),
+                                        r.getBirthDate(),
+                                        r.getPetImgName(),
+                                        r.getWeight(),
+                                        r.getPetGender(),
+                                        r.getNeutering(),
+                                        r.getPetCategory(),
 
-                        userDetailInfo.stream().collect(mapping(r->new AdminUserPetDetailDto(
-                                r.getPetId(), r.getBirthDate(), r.getPetImgName(), r.getWeight(), r.getPetGender(), r.getNeutering(),r.getPetCategory(),
-                                new AdminUserPetImgDto(r.getPetImgId(), r.getPetImgPath(), r.getPetImgUuid(), r.getPetImgName())),toList()
+                                new AdminUserPetImgDto(
+                                        r.getPetImgId(),
+                                        r.getPetImgPath(),
+                                        r.getPetImgUuid(),
+                                        r.getPetImgName())),toList()
                         )))
         ).orElseThrow(()->{
            throw new IllegalArgumentException("정보 없음");
@@ -112,7 +194,13 @@ public class UsersRepositoryImpl implements UsersRepositoryCustom {
 
     }
 
-    //관리자 페이지 회원상세-주문내역
+
+    /**
+     *
+     * @param pageable pageable
+     * @param userId 회원ID
+     * @return 해당 회원의 주문 내역 및 총 주문 합계 금액
+     */
     @Override
     public Page<AdminUserDetailOrderResultWithTotalPriceDto> userPaymentList(Pageable pageable, Long userId) {
 
@@ -174,7 +262,6 @@ public class UsersRepositoryImpl implements UsersRepositoryCustom {
                 .where(orders.users.id.eq(userId))
                 .fetchOne();
 
-
         Integer totalOrderPrice = jpaQueryFactory.select(
                 orderItem.orderQuantity.multiply(orderItem.orderPrice).sum()
         )
@@ -220,7 +307,12 @@ public class UsersRepositoryImpl implements UsersRepositoryCustom {
 //    }
 
 
-    //관리자페이지 회원상세-qna리스트
+    /**
+     *
+     * @param userId 회원ID
+     * @param pageable Pageable
+     * @return 해당 회원이 작성한 QnA 게시글
+     */
     @Override
     public Page<AdminUserDetailQnaListDto> userDetailQnaList(Pageable pageable, Long userId) {
 
@@ -254,7 +346,12 @@ public class UsersRepositoryImpl implements UsersRepositoryCustom {
         return new PageImpl<>(qnaListResults, pageable, getTotal);
     }
 
-    //관리자페이지 회원상세-자유게시판 리스트
+    /**
+     *
+     * @param userId 회원ID
+     * @param pageable Pageable
+     * @return 해당 회원이 작성한 자유게시판 게시글
+     */
     @Override
     public Page<AdminUserDetailFreeBoardListDto> userDetailFreeBoardList(Pageable pageable, Long userId) {
         List<AdminUserDetailFreeBoardListDto> freeListDtoQueryResults =
@@ -289,7 +386,12 @@ public class UsersRepositoryImpl implements UsersRepositoryCustom {
 
 
 
-    //관리자페이지 회원상세-산책리스트
+    /**
+     *
+     * @param userId 회원ID
+     * @param pageable Pageable
+     * @return 해당 회원이 작성한 산책메이트 게시글
+     */
     @Override
     public Page<AdminUserDetailWalkMateDto> userDetailWalkMateList(Pageable pageable, Long userId) {
 
@@ -320,7 +422,11 @@ public class UsersRepositoryImpl implements UsersRepositoryCustom {
     }
 
 
-    //등록된 펫 정보
+    /**
+     * 등록된 펫 정보
+     * @param userId 회원ID
+     * @return 해당 회원ID에 등록된 펫 목록
+     */
     @Override
     public List<UserPetDto> findAllPetByUserId(Long userId) {
         return jpaQueryFactory.select(new QUserPetDto(
@@ -332,79 +438,14 @@ public class UsersRepositoryImpl implements UsersRepositoryCustom {
                 .fetch();
     }
 
+
+    /**
+     *
+     * @return 일별 회원 가입 수
+     */
     @Override
     public List<AdminUserChartDto> findJoinCountByAll() {
-        return getDailyJoinCount();
-    }
 
-    @Override
-    public Map<String, List> newUserStatus() {
-        return getUserStatsBy();
-    }
-
-
-    private Long getCount(String cate, String keyword, String userState){
-        return jpaQueryFactory.select(users.count())
-                .from(users)
-                .where(
-                        userStateEq(userState),
-                        cateEq(cate, keyword)
-                )
-                .fetchOne();
-    }
-
-
-    //회원리스트
-    private List<UserListDto> getUserList(Pageable pageable, String cate, String keyword, String userState){
-
-        List<UserListDto> userStanInfo = jpaQueryFactory.select(new QUserListDto(
-                users.id,
-                users.userAccount,
-                users.userName,
-                users.userEmail,
-                users.userPhone,
-                users.userJoinDate,
-                users.userState,
-                jpaQueryFactory.select(
-                        question.count()
-                )
-                    .from(question)
-                    .where(question.users.id.eq(users.id)),
-                jpaQueryFactory.select(
-                        freeBoard.count()
-                )
-                .from(freeBoard)
-                .where(freeBoard.users.id.eq(users.id)),
-                jpaQueryFactory.select(
-                        walkingMate.count()
-                )
-                .from(walkingMate)
-                .where(walkingMate.users.id.eq(users.id))
-
-        ))
-                .from(users)
-                .where(
-                        userStateEq(userState),
-                        cateEq(cate, keyword)
-                )
-                .groupBy(users.id, users.userAccount, users.userName, users.userEmail, users.userPhone, users.userJoinDate, users.userState)
-                .orderBy(users.id.desc())
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
-
-
-
-
-        return userStanInfo;
-    }
-
-
-
-
-
-    //주단위 일별 회원가입자 수
-    public List<AdminUserChartDto> getDailyJoinCount() {
         LocalDate nowDate = LocalDate.now();
         LocalDate startDate = nowDate.with(TemporalAdjusters.previous(DayOfWeek.MONDAY)).atStartOfDay().minusWeeks(3).toLocalDate();
 
@@ -421,16 +462,13 @@ public class UsersRepositoryImpl implements UsersRepositoryCustom {
                 .fetch()
                 .stream()
                 .collect(Collectors.toMap(
-                        //튜플로 반환되므로 튜플에서 꺼내서 Map으로 감싸준다.
                         tuple -> tuple.get(users.userJoinDate),
                         tuple -> tuple.get(users.count()),
-                        (count1, count2) -> count1 + count2 
-                        //동일한 날짜값이 있으면 duplicate 에러 발생
-                        //count1은 날짜 , count2는 새로운 데이터값이다.
-                        //에러 방지를 위해 두 값을 서로 합쳐준다. -> 즉 카운트 합산
+                        Long::sum
+
                 ));
 
-        //위에서 생성한 일주일 간 날짜를 가져온다.(datesInRange)
+        // 위에서 생성한 일주일 간 날짜를 가져온다.(datesInRange)
         // 빈 값을 가진 날짜에 대한 결과 추가
         for (LocalDate date : datesInRange) {
             dailyCounts.putIfAbsent(date, 0L);
@@ -443,12 +481,8 @@ public class UsersRepositoryImpl implements UsersRepositoryCustom {
                 .collect(Collectors.toList());
     }
 
-
-
-
-
-
-    private Map<String, List> getUserStatsBy() {
+    @Override
+    public Map<String, List> newUserStatus() {
         LocalDate nowDate = LocalDate.now();
 
         //신규 가입 회원 현황
@@ -511,24 +545,30 @@ public class UsersRepositoryImpl implements UsersRepositoryCustom {
         count.add(deleteTotalCount);
 
         Map<String, List> userStats = new HashMap<>();
-        userStats.put("userInfoCount", count);
-        userStats.put("userRecent", recentJoinDtoList);
+        userStats.put("userInfoCount", count); //대시 보드 정보
+        userStats.put("userRecent", recentJoinDtoList); //최근 가입 회원
 
         return userStats;
     }
 
 
-
-
-
-    //회원상태
+    /**
+     *
+     * @param userState 회원 상태 ( 0 : 탈퇴 상태 / 1 : 회원 상태 )
+     * @return 회원 상태 값
+     */
     private BooleanExpression userStateEq(String userState){
 
         return StringUtils.hasText(userState) ? users.userState.eq(Integer.valueOf(userState)) : null;
     }
 
 
-    //회원리스트 - 셀렉트 옵션 동적 메소드
+    /**
+     *
+     * @param cate 회원 정보 검색 카테고리
+     * @param keyword 회원 정보 검색 키워드
+     * @return 각 정보 검색에 맡는 결과 값
+     */
     private BooleanExpression cateEq(String cate, String keyword) {
         if (StringUtils.hasText(cate) && StringUtils.hasText(keyword)) {
             switch (cate) {

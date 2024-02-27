@@ -33,7 +33,12 @@ public class RecentViewGoods {
         this.lastViewed = lastViewed;
     }
 
-    // 상품이 클릭되었을 때 최근 본 상품을 session에 담는 메소드
+
+    /**
+     * 상품 상세페이지로 이동했을 시 최근 본 상품을 session에 담는 메소드
+     * @param goodsDetailDto 조회 정보를 담는 dto
+     * @param session session 객체
+     */
     public void productClicked(GoodsDetailDto goodsDetailDto, HttpSession session) {
 
         List<RecentViewGoods> recentViews = (List<RecentViewGoods>) session.getAttribute("recentViews");

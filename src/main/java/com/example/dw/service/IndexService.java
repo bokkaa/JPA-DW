@@ -24,12 +24,12 @@ public class IndexService {
     private final GoodsRepositoryCustom goodsRepositoryCustom;
     private final ShopRepositoryCustom shopRepositoryCustom;
     private final IndexRepositoryCustom indexRepositoryCustom;
-    
-    
-    
-    
-   
-    //산책글 리스트
+
+
+    /**
+     * 산책메이트 최신글
+     * @return 
+     */
     @Transactional
     public List<IndexWalkMateDto> indexWalkMateList(){
 
@@ -38,15 +38,19 @@ public class IndexService {
     }
 
 
-    
-    //주간 인기글
-    //Qna Best3
+    /**
+     * 주간 Qna 인기글 - Top3 (조회수 기준)
+     * @return 주간 Qna 인기글
+     */
     @Transactional
     public List<WeeklyQnaListDto> weeklyQnaList(){
         return indexRepositoryCustom.weeklyQnaList();
     }
 
-    //자유게시판 Best5
+    /**
+     * 주간 자유게시판 인기글 - Top3(조회수 기준)
+     * @return 주간 자유게시판 인기글
+     */
     @Transactional
     public  List<WeeklyFreeBoardList> weeklyFreeBoardList(){
 
@@ -54,10 +58,11 @@ public class IndexService {
     }
 
 
-
-    
-    
-    //카테고리별 상품 리스트
+    /**
+     * 카테고리별 상품
+      * @param goodsCategory 상품 카테고리 
+     * @return 상품 카테고리별 상품 목록
+     */    
     @Transactional
     public List<IndexGoodsByCateDto> indexGoodsByCategory(GoodsCategory goodsCategory){
 

@@ -40,7 +40,17 @@ public class AdminGoodsController {
         return "/admin/adminGoodsReg";
     }
 
-    //상품 등록
+
+    /**
+     *
+     * @param goodsForm 입력된 상품 기본 정보
+     * @param file 입력된 상품 메인 사진 1장
+     * @param files 입력된 상품 상세 사진 최대 4장
+     * @param errors 입력 검증
+     * @param model html로 내보내기위한 model
+     * @return 상품 리스트 페이지 이동
+     * @throws IOException 사진 파일 저장 관련 예외처리
+     */
     @PostMapping("/goodsRegister")
     public String goodsRegister(@Valid GoodsForm goodsForm,
                                 @RequestParam("goodsMainImg") MultipartFile file,   //메인사진
@@ -74,7 +84,12 @@ public class AdminGoodsController {
         return ("redirect:/admin/goodsList");
     }
 
-    //상품 상세 페이지 이동
+    /**
+     *
+     * @param goodsId 상품ID
+     * @param model html로 내보내기 위한 model
+     * @return 해당 상품 ID와 일치하는 상품 정보
+     */
     @GetMapping("/detail/{goodsId}")
     public String goodsDetail(@PathVariable("goodsId") Long goodsId, Model model){
 
@@ -91,7 +106,12 @@ public class AdminGoodsController {
     }
 
 
-//    //상품 수정 페이지 이동
+    /**
+     *
+     * @param goodsId 상품ID
+     * @param model 기존 상품 정보를 보여주기 위해 사용하는 model
+     * @return 해당 상품Id에 맞는 상품 정보
+     */
     @GetMapping("/modify/{goodsId}")
     public String goodsModifyPage(@PathVariable("goodsId") Long goodsId, Model model){
 
@@ -102,7 +122,15 @@ public class AdminGoodsController {
         return "/admin/adminGoodsModify";
     }
 
-    //상품 수정
+    /**
+     *
+     * @param goodsId 상품ID
+     * @param goodsForm 수정된 입력사항이 저장되는 form
+     * @param file 수정된 상품 메인 사진
+     * @param files 수정된 상품 상세 사진
+     * @return 해당 상품 상세 페이지로 이동
+     * @throws IOException 이미지 예외처리
+     */
     @PutMapping("/modify/{goodsId}/edit")
     public RedirectView goodsModify(@PathVariable("goodsId") Long goodsId,
                                     GoodsForm goodsForm,
@@ -119,7 +147,11 @@ public class AdminGoodsController {
     }
 
 
-    //상품 삭제
+    /**
+     * 상품 삭제
+     * @param goodsId 상품ID
+     * @return 삭제 성공 시 상품리스트 페이지 이동
+     */
     @GetMapping("/delete/{goodsId}")
     public RedirectView goodsDelete(@PathVariable("goodsId") Long goodsId){
 
@@ -136,7 +168,12 @@ public class AdminGoodsController {
     }
 
 
-    //상품 문의 상세보기
+    /**
+     * 상품 문의 상세보기
+     * @param qnaId 상품문의ID
+     * @param model 상품문의 정보를 html로 내보내기 위한 model
+     * @return 해당 상품 상세 페이지 이동
+     */
     @GetMapping("/qnaDetail/{qnaId}")
     public String qnaDetail(@PathVariable("qnaId") Long qnaId,
                             Model model){
@@ -159,7 +196,12 @@ public class AdminGoodsController {
         return "admin/adminGoodsReview";
     }
 
-    //상품 리뷰 상세
+
+    /**
+     * 상품 기본 정보 및 리뷰 정보
+     * @param orderReviewId 주문리뷰ID
+     * @return 해당 주문리뷰ID와 일치하는 상품 기본 정보 및 리뷰 정보
+     */
     @GetMapping("/goodsReviewDetail/{orderReviewId}")
     public String goodsReviewDetail(@PathVariable("orderReviewId") Long orderReviewId, Model model){
 

@@ -24,10 +24,12 @@ public class AdminCommunityApiController {
     private final AdminCommunityService adminCommunityService;
 
 
-
-
-
-    //qna리스트
+    /**
+     * 관리자 페이지 - Qna 게시글 목록
+     * @param page page 변수
+     * @param searchForm 검색정보가 담긴 form
+     * @return
+     */
     @GetMapping("/qnaList/{page}")
     public Page<AdminQnaBoardList> qnaList(
             @PathVariable("page") int page
@@ -39,13 +41,24 @@ public class AdminCommunityApiController {
     }
 
 
-    //qna상세
+    /**
+     * 관리자 페이지 - Qna 게시글 상세
+     * @param qnaId Qna 게시글 ID
+     * @return 해당 Qna 게시글 ID와 일치하는 게시글 정보
+     */
     @GetMapping("/questionDetail/{qnaId}")
     public AdminQnaDetailResultDto qnaDetail(@PathVariable("qnaId")Long qnaId){
 
         return adminCommunityService.qnaBoardDetail(qnaId);
     }
 
+
+    /**
+     * 관리자 페이지 - 자유게시판 목록
+     * @param page page 변수
+     * @param searchForm 검색정보가 담긴 form
+     * @return
+     */
     //자유게시판 리스트
     @GetMapping("/freeBoardList/{page}")
     public Page<AdminFreeBoardList> freeBoardList(
@@ -59,19 +72,19 @@ public class AdminCommunityApiController {
     }
 
 
-
-
-    //관리자 산책글 리스트
+    /**
+     * 관리자 페이지 - 산책메이트 게시글 목록
+     * @param page page 변수
+     * @param searchCateLocationForm 검색 정보
+     * @return 산책메이트 게시글 목록
+     */
     @GetMapping("/walkList/{page}")
     public Page<WalkMateListDto> showWalkList(@PathVariable("page") int page,
                                               SearchCateLocationForm searchCateLocationForm){
 
         System.out.println("[관리자 산책글 리스트] :  "+searchCateLocationForm.toString());
 
-
         Page<WalkMateListDto> result = adminCommunityService.walkMateList(page, searchCateLocationForm);
-
-        System.out.println(result.toString());
 
        return result;
 

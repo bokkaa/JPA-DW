@@ -102,7 +102,14 @@ $(document).ready(function (){
 
 
 
-//상품 문의 답변 등록
+
+/**
+ * 상품 문의 답변 등록
+ * @param qnaReplyContent 관리자 답변 내용
+ * @param goodsQueId 상품문의ID
+ * @param userId 회원ID
+ * @param callback
+ */
 function addReply(qnaReplyContent, goodsQueId, userId, callback){
 
     $.ajax({
@@ -131,7 +138,12 @@ function addReply(qnaReplyContent, goodsQueId, userId, callback){
 
 
 
-//상품 문의 답변 불러오기
+
+/**
+ * 상품 문의 답변 불러오기
+ * @param qnaId 상품문의ID
+ * @param callback
+ */
 function replyList(qnaId, callback){
     $.ajax({
 
@@ -151,7 +163,13 @@ function replyList(qnaId, callback){
 }
 
 
-//상품 문의 답변 수정
+
+/**
+ * 상품 문의 답변 수정
+ * @param replyId 관리자 문의 답변ID
+ * @param qnaReplyContent 관리자 답변 수정 내용
+ * @param callback
+ */
 function replyModify(replyId, qnaReplyContent, callback){
 
     $.ajax({
@@ -173,7 +191,12 @@ function replyModify(replyId, qnaReplyContent, callback){
     })
 }
 
-//상품 문의 답변 삭제
+
+/**
+ * 상품 문의 답변 삭제
+ * @param replyId 관리자 문의 답변ID
+ * @param callback
+ */
 function replyDelete(replyId, callback){
 
     $.ajax({
@@ -194,7 +217,10 @@ function replyDelete(replyId, callback){
 }
 
 
-
+/**
+ * ApiController에서 받아온 데이터 뿌리기
+ * @param result ApiController의 반환값
+ */
 function getReplyList(result) {
 
     let text = '';

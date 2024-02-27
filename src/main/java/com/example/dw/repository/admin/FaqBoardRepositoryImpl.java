@@ -25,32 +25,12 @@ public class FaqBoardRepositoryImpl implements FaqBoardRepositoryCustom{
         this.jpaQueryFactory = jpaQueryFactory;
     }
 
+    //관리자 페이지 - FAQ 목록
     @Override
     public Page<AdminFaqBoardDto> findFaqListBySearch(Pageable pageable, SearchForm searchForm) {
 
 
-        List<AdminFaqBoardDto> content = getFaqBoardList(pageable, searchForm);
-        Long counts = getCount(searchForm);
-        return new PageImpl<>(content, pageable, counts);
-
-    }
-
-    private Long getCount(SearchForm searchForm){
-
-        Long count = jpaQueryFactory
-                .select(faqBoard.count())
-                .from(faqBoard)
-                .where(
-                        cateKeywordEq(searchForm)
-
-                )
-                .fetchOne();
-        return count;
-    }
-
-    private List<AdminFaqBoardDto> getFaqBoardList(Pageable pageable, SearchForm searchForm){
-
-        List<AdminFaqBoardDto> contents = jpaQueryFactory
+        List<AdminFaqBoardDto> content = jpaQueryFactory
                 .select(new QAdminFaqBoardDto(
                         faqBoard.id,
                         faqBoard.faqBoardTitle,
@@ -59,7 +39,7 @@ public class FaqBoardRepositoryImpl implements FaqBoardRepositoryCustom{
                         faqBoard.faqBoardRd,
                         faqBoard.faqBoardMd
 
-                        ))
+                ))
                 .from(faqBoard)
                 .where(
 
@@ -70,7 +50,16 @@ public class FaqBoardRepositoryImpl implements FaqBoardRepositoryCustom{
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        return contents;
+        Long counts = jpaQueryFactory
+                .select(faqBoard.count())
+                .from(faqBoard)
+                .where(
+                        cateKeywordEq(searchForm)
+
+                )
+                .fetchOne();
+        return new PageImpl<>(content, pageable, counts);
+
     }
 
 

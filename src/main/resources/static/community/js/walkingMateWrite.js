@@ -112,6 +112,7 @@ $('.submit-btn').on('click', function (){
         return false;
     }
 
+    //글 작성 제한
     $.ajax({
 
         url : `/walks/limitCheck/${userId}`,

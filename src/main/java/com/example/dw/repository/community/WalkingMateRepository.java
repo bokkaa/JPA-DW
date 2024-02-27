@@ -27,7 +27,7 @@ public interface WalkingMateRepository extends JpaRepository<WalkingMate, Long> 
     @Query("update WalkingMate wm set wm.walkingMateState=0 where wm.id=:id")
     void downDateWalkMateState(@Param("id") Long id);
 
-
+    //산책게시글 신청자 정보
     @Query("select NEW com.example.dw.domain.dto.community.WalkDetailStateDto (wms.walkingMate.id, wms.id, u.id, u.userAccount, u.userNickName, p.id, p.name, p.weight, p.petGender, p.birthDate, p.petCategory, p.neutering, pi.petFileName, pi.petPath, pi.petUuid, wms.state, wms.writerCheck) " +
             "from WalkingMateState wms " +
             "left join WalkingMate wm on wm.id=wms.walkingMate.id " +
@@ -39,11 +39,11 @@ public interface WalkingMateRepository extends JpaRepository<WalkingMate, Long> 
 
 
 
-
+    //산책게시글 작성제한 (희망 요일 확인)
     @Query("select wm.id from WalkingMate wm where wm.users.id=:userId and wm.walkingMateDate=:walkingMateDate")
     Long limitWrite(@Param("userId")Long userId, @Param("walkingMateDate") String walkingMateDate);
 
-
+    //산책게시글 수정제한 (이미 작성된 희망요일이 있는지 확인, 없다면 해당하는 희망 요일로 수정 제출 가능)
     @Query("select wm.id from WalkingMate wm where wm.users.id=:userId and wm.walkingMateDate=:walkingMateDate and wm.id=:walkMateId")
     Long limitModify(@Param("userId")Long userId, @Param("walkingMateDate") String walkingMateDate, @Param("walkMateId") Long walkMateId);
 

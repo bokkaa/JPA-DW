@@ -20,6 +20,11 @@ public class WalkingMateCommentImpl implements WalkingMateCommentCustom {
     private final JPAQueryFactory jpaQueryFactory;
 
 
+    /**
+     * 산책게시글에 등록된 댓글 목록
+     * @param walkBoardId 산책게시글ID
+     * @return 해당 산책게시글ID에 등록된 댓글목록
+     */
     @Override
     public List<WalkMateDetailReplyDto> findReplyByWalkBoardId(Long walkBoardId) {
         return jpaQueryFactory.select(new QWalkMateDetailReplyDto(

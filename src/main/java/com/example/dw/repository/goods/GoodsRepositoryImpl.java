@@ -34,8 +34,13 @@ public class GoodsRepositoryImpl implements GoodsRepositoryCustom {
 
     private final JPAQueryFactory jpaQueryFactory;
     private final EntityManager em;
+    private static final int MAX_RECENT_VIEW_RESULTS = 6;
 
-    //메인페이지 카테고리별 상품리스트
+    /**
+     * 메인페이지 - 상품 카테고리별 상품 목록
+     * @param goodsCategory 상품 카테고리
+     * @return
+     */
     @Override
     public List<IndexGoodsByCateDto> indexGoodsListByCategory(GoodsCategory goodsCategory) {
 
@@ -51,7 +56,7 @@ public class GoodsRepositoryImpl implements GoodsRepositoryCustom {
                         "group by g.id, g.goodsName, g.goodsPrice, g.goodsCategory, gm.id, gm.goodsMainImgPath, gm.goodsMainImgUuid, gm.goodsMainImgName " +
                         "order by g.id desc", IndexGoodsByCateDto.class)
                 .setParameter("goodsCategory", goodsCategory)
-                .setMaxResults(6)  // 최대 6개 결과를 가져오도록 설정
+                .setMaxResults(MAX_RECENT_VIEW_RESULTS)
                 .getResultList();
 
 
@@ -59,8 +64,12 @@ public class GoodsRepositoryImpl implements GoodsRepositoryCustom {
     }
 
 
-
-    //관리자 페이지 상품 리스트
+    /**
+     * 관리자 페이지 - 등록된 상품 목록
+     * @param pageable pageable
+     * @param searchForm 검색 카테고리, 키워드가 담겨져 있는 클래스
+     * @return 등록된 상품 목록
+     */
     @Override
     public Page<AdminGoods.AdminGoodsList> findGoodsAll(Pageable pageable, SearchForm searchForm) {
         List<AdminGoods.AdminGoodsList> contents = jpaQueryFactory
@@ -100,9 +109,13 @@ public class GoodsRepositoryImpl implements GoodsRepositoryCustom {
         return new PageImpl<>(contents, pageable,count);
     }
 
-    //관리자 페이지 상품 상세 페이지
+    /**
+     * 상품 상세 보기
+     * @param goodsId 상품ID
+     * @return 해당 상품 ID와 일치하는 상품 정보
+     */
     @Override
-    public AdminGoods.AdminGoodsDetail findGoodsById(Long id) {
+    public AdminGoods.AdminGoodsDetail findGoodsById(Long goodsId) {
     
         Double avg =
                 jpaQueryFactory.select(
@@ -111,7 +124,7 @@ public class GoodsRepositoryImpl implements GoodsRepositoryCustom {
                         .from(orderReview)
                         .leftJoin(orderReview.orderItem, orderItem)
                         .leftJoin(orderItem.goods, goods)
-                        .where(goods.id.eq(id))
+                        .where(goods.id.eq(goodsId))
                         .fetchOne();
 
         List<AdminGoods> detail= jpaQueryFactory
@@ -140,27 +153,50 @@ public class GoodsRepositoryImpl implements GoodsRepositoryCustom {
                         .from(goods)
                         .leftJoin(goods.goodsMainImg, goodsMainImg)
                         .leftJoin(goods.goodsDetailImg, goodsDetailImg)
-                        .where(goods.id.eq(id))
+                        .where(goods.id.eq(goodsId))
                         .fetch();
 
 
-        AdminGoods.AdminGoodsDetail sss = detail.stream().map(
+        AdminGoods.AdminGoodsDetail goodsDetailInfo = detail.stream().map(
                 o -> new AdminGoods.AdminGoodsDetail(
-                        o.getGoodsId(), o.getGoodsName(), o.getGoodsCategory(), o.getGoodsQuantity(),
-                        o.getGoodsPrice(), o.getGoodsSaleCount(), o.getGoodsDetailContent(), o.getGoodsMate(),
-                        o.getGoodsCertify(), o.getGoodsRd(), o.getGoodsMd(), avg, o.getGoodsMainImgPath(), o.getGoodsMainImgUuid(), o.getGoodsMainImgName())
+                        o.getGoodsId(),
+                        o.getGoodsName(),
+                        o.getGoodsCategory(),
+                        o.getGoodsQuantity(),
+                        o.getGoodsPrice(),
+                        o.getGoodsSaleCount(),
+                        o.getGoodsDetailContent(),
+                        o.getGoodsMate(),
+                        o.getGoodsCertify(),
+                        o.getGoodsRd(),
+                        o.getGoodsMd(),
+                        avg,
+                        o.getGoodsMainImgPath(),
+                        o.getGoodsMainImgUuid(),
+                        o.getGoodsMainImgName())
         ).findFirst().get();
 
         List<AdminGoods.AdminGoodsDetailImg> imgs = detail.stream().map(
-                img -> new AdminGoods.AdminGoodsDetailImg(img.getGoodsDetailImgId(), img.getGoodsDetailImgPath(), img.getGoodsDetailImgUuid(), img.getGoodsDetailImgName())
+                img -> new AdminGoods.AdminGoodsDetailImg(
+                        img.getGoodsDetailImgId(),
+                        img.getGoodsDetailImgPath(),
+                        img.getGoodsDetailImgUuid(),
+                        img.getGoodsDetailImgName())
         ).collect(toList());
 
-        sss.setGoodsDetailImg(imgs);
+        goodsDetailInfo.setGoodsDetailImg(imgs);
 
 
-        return sss;
+        return goodsDetailInfo;
     }
-    //상품 상세 - 상품 관련 문의사항
+
+    /**
+     * 상품 관련 문의 사항 목록
+     * @param goodsId 상품ID
+     * @param pageable pageable
+     * @param state 상품 관련 문의 답변 여부 확인
+     * @return 해당 상품 관련 문의 사항 목록
+     */
     @Override
     public Page<AdminGoodsQnaListDto> getQnaList(Long goodsId, Pageable pageable, String state){
         List<AdminGoodsQnaListDto> lists = jpaQueryFactory.select(new QAdminGoodsQnaListDto(
@@ -194,8 +230,15 @@ public class GoodsRepositoryImpl implements GoodsRepositoryCustom {
         return new PageImpl<>(lists, pageable, qnaListCount);
 
     }
-    
-    //상품 상세 - 상품 관련 리뷰
+
+
+    /**
+     * 상품 관련 리뷰 목록
+     * @param goodsId 상품ID
+     * @param pageable pageable
+     * @param state 상품 관련 리뷰 답변 여부 확인
+     * @return 해당 상품 관련 리뷰 사항 목록
+     */
     @Override
     public Page<AdminGoodsReview.AdminGoodsRelatedReview> getReviewList(Long goodsId, Pageable pageable, String state) {
         List<AdminGoodsReview.AdminGoodsRelatedReview> lists = jpaQueryFactory.select(new QAdminGoodsReview_AdminGoodsRelatedReview(
@@ -229,7 +272,14 @@ public class GoodsRepositoryImpl implements GoodsRepositoryCustom {
     }
 
 
-    //관리자 Qna리스트
+    /**
+     * 관리자 페이지 상품 관련 문의 목록
+     * @param pageable pageable 페이징 처리를 위한 객체
+     * @param qnaState 해당 문의에 대한 관리자 답변 여부
+     * @param cate 검색 카테고리
+     * @param keyword 검색 키워드
+     * @return
+     */
     @Override
     public Page<AdminGoodsQnaListDto> getQnaList(Pageable pageable, String qnaState, String cate, String keyword) {
         List<AdminGoodsQnaListDto> lists = jpaQueryFactory.select(new QAdminGoodsQnaListDto(
@@ -270,7 +320,11 @@ public class GoodsRepositoryImpl implements GoodsRepositoryCustom {
 
 
 
-    //관리자 상품 문의 상세 - 문의 정보 / 상품 기본 정보 / 상품 메인 사진
+    /**
+     * 상품 문의 상세보기
+     * @param qnaId 상품문의ID
+     * @return 해당 상품 정보와 문의 사항
+     */
     @Override
     public Optional<AdminGoodsQueDetailDto> getQnaDetail(Long qnaId) {
         return Optional.ofNullable(jpaQueryFactory.select(new QAdminGoodsQueDetailDto(
@@ -305,7 +359,11 @@ public class GoodsRepositoryImpl implements GoodsRepositoryCustom {
                 .fetchOne());
     }
 
-    //관리자 상품 문의 답변 내역 가져오기
+    /**
+     * 해당 상품 리뷰에 관한 관리자 답변 사항 가져오기
+     * @param qnaId 상품문의ID
+     * @return 해당 상품 리뷰에 관한 관리자 답변 내용
+     */
     @Override
     public AdminGoodsQueReplyDto getReplyList(Long qnaId) {
         return jpaQueryFactory.select(new QAdminGoodsQueReplyDto(
@@ -323,29 +381,50 @@ public class GoodsRepositoryImpl implements GoodsRepositoryCustom {
 
 
     //상품 리스트 동적 검색
+
+    /**
+     *
+     * @param searchForm 검색 카테고리, 키워드가 담겨져 있는 클래스
+     * @return 검색 카테고리
+     */
     private BooleanExpression cateGoryNameEq(SearchForm searchForm){
         return StringUtils.hasText(searchForm.getCate()) ? goods.goodsCategory.stringValue().eq(searchForm.getCate()) : null;
     }
 
+    /**
+     *
+     * @param searchForm 검색 카테고리, 키워드가 담겨져 있는 클래스
+     * @return 검색 키워드
+     */
     private BooleanExpression goodsNameEq(SearchForm searchForm){
         return StringUtils.hasText(searchForm.getKeyword()) ? goods.goodsName.containsIgnoreCase(searchForm.getKeyword()) : null;
     }
 
 
-    //상품 문의 동적 검색
+    /**
+     * 문의 검색을 위한 카테고리
+     * @param cate 검색 카테고리
+     * @return 검색 카테고리
+     */
     private BooleanExpression cateGoryNameEq(String cate){
         return StringUtils.hasText(cate) ? goods.goodsCategory.stringValue().eq(cate) : null;
     }
 
-
-
+    /**
+     * 문의 검색을 위한 키워드
+     * @param keyword 검색 키워드
+     * @return 검색 키워드
+     */
     private BooleanExpression goodsNameEq(String keyword){
         return StringUtils.hasText(keyword) ? goods.goodsName.containsIgnoreCase(keyword) : null;
     }
 
 
-
-    //문의상태
+    /**
+     * 문의에 대한 관리자 답변 여부
+     * @param qnaState 상품문의ID
+     * @return 답변 여부 일치 혹은 null
+     */
     private BooleanExpression qnaStateEq(String qnaState){
 
         return StringUtils.hasText(qnaState) ? goodsQue.state.eq(Integer.valueOf(qnaState)) : null;

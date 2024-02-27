@@ -20,9 +20,6 @@ import org.springframework.util.StringUtils;
 import java.util.List;
 
 import static com.example.dw.domain.entity.admin.QNoticeBoard.noticeBoard;
-import static com.example.dw.domain.entity.freeBoard.QFreeBoard.freeBoard;
-import static com.example.dw.domain.entity.freeBoard.QFreeBoardImg.freeBoardImg;
-import static com.example.dw.domain.entity.user.QUsers.users;
 
 @Repository
 @RequiredArgsConstructor
@@ -33,30 +30,8 @@ public class NoticeBoardRepositoryImpl implements NoticeBoardRepositoryCustom {
     @Override
     public Page<AdminNoticeBoardDto> findNoticeListBySearch(Pageable pageable, SearchForm searchForm) {
 
-        List<AdminNoticeBoardDto> content = getNoticeBoardList(pageable, searchForm);
-        Long count = getCount(searchForm);
 
-        return new PageImpl<>(content, pageable, count);
-    }
-
-
-
-
-    private Long getCount(SearchForm searchForm){
-
-        Long count = jpaQueryFactory
-                .select(noticeBoard.count())
-                .from(noticeBoard)
-                .where(
-                        cateKeywordEq(searchForm)
-                )
-                .fetchOne();
-        return count;
-    }
-
-    private List<AdminNoticeBoardDto> getNoticeBoardList(Pageable pageable, SearchForm searchForm){
-
-        List<AdminNoticeBoardDto> contents = jpaQueryFactory
+        List<AdminNoticeBoardDto> content = jpaQueryFactory
                 .select(new QAdminNoticeBoardDto(
                         noticeBoard.id,
                         noticeBoard.noticeBoardTitle,
@@ -74,10 +49,18 @@ public class NoticeBoardRepositoryImpl implements NoticeBoardRepositoryCustom {
                 .limit(pageable.getPageSize())
                 .fetch();
 
+        Long count = jpaQueryFactory
+                .select(noticeBoard.count())
+                .from(noticeBoard)
+                .where(
+                        cateKeywordEq(searchForm)
+                )
+                .fetchOne();
 
-
-        return contents;
+        return new PageImpl<>(content, pageable, count);
     }
+
+
 
 
     private BooleanExpression cateKeywordEq(SearchForm searchForm){

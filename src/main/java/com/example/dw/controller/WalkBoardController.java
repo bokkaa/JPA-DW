@@ -27,14 +27,22 @@ public class WalkBoardController {
 
     private final WalkingMateService walkingMateService;
 
-    //산책글 리스트 페이지 이동
+    /**
+     * 산책게시글 리스트 페이지
+     * @return
+     */
     @GetMapping("/walkList")
     public String walkList(){
         return "/community/walkingMateList";
     }
 
 
-
+    /**
+     * 산책글 작성 페이지 이동
+     * @param model model 객체
+     * @param session session 객체
+     * @return
+     */
     //산책글 작성 페이지 이동
     @GetMapping("/walkWrite")
     public String walkWrite(Model model, HttpSession session){
@@ -49,6 +57,12 @@ public class WalkBoardController {
     }
 
 
+    /**
+     * 산책글 작성 완료
+     * @param walkMateForm 산책게시글 작성 정보
+     * @param session session 객체
+     * @return 산책게시글 리스트 페이지 이동
+     */
     //산책글작성 완료
     @PostMapping("/registerWalkMate")
     public RedirectView registerWalk(WalkMateForm walkMateForm, HttpSession session){
@@ -66,9 +80,13 @@ public class WalkBoardController {
     }
 
 
-
-
-    //산책글 상세보기
+    /**
+     * 산책글 상세보기
+     * @param id 산책게시글 ID
+     * @param model Model 객체
+     * @param session session 객체
+     * @return 산책게시글 ID에 해당하는 산책게시글 상세 정보
+     */
     @GetMapping("/detail/{id}/{userId}")
     public String walkDetail(@PathVariable("id") Long id, Model model, HttpSession session){
         
@@ -85,9 +103,9 @@ public class WalkBoardController {
         //신청자 pet 목록
         
         try{
-            //로그인 상태일 시
             Long sessionUserId = (Long)session.getAttribute("userId");
 
+            //로그인 상태일 시
             if(sessionUserId != null){
                 //신청자 펫리스트
                 List<UserPetDto> petList = walkingMateService.getUserPets(sessionUserId);
@@ -99,7 +117,6 @@ public class WalkBoardController {
             }
 
         }catch (Exception e){
-            
             //비로그인 상태면 예외처리
             e.printStackTrace();
         }
@@ -108,6 +125,13 @@ public class WalkBoardController {
         return "/community/walkingMateDetail";
     }
 
+    /**
+     * 산책게시글 수정 페이지 이동
+     * @param id 산책게시글 ID
+     * @param model model 객체
+     * @param session session 객체
+     * @return 해당 산책게시글 ID에 맞는 게시글 수정 페이지 이동
+     */
     //산책글 수정페이지 이동
     @GetMapping("/modify/{id}")
     public String walkModify(@PathVariable("id") Long id,
@@ -129,6 +153,11 @@ public class WalkBoardController {
     }
 
 
+    /**
+     * 산책글 수정 완료
+     * @param walkMateForm 산책게시글 수정 정보
+     * @return 산책게시글 리스트 페이지 이동
+     */
     //산책글 수정 완료
     @PostMapping("/modifyOk/{id}")
     public RedirectView walkModifyOk(WalkMateForm walkMateForm){
@@ -140,9 +169,14 @@ public class WalkBoardController {
 
     }
 
-    //산책글 삭제
+    /**
+     * 산책게시글 삭제
+     * @param walkBoardId 산책게시글 ID
+     * @return 산책게시글 리스트 페이지 이동
+     */
     @GetMapping("/deleteWalkMate/{walkBoardId}")
     public RedirectView deleteWalkMate(@PathVariable("walkBoardId") Long walkBoardId){
+
 
         walkingMateService.walkDelete(walkBoardId);
 
@@ -150,7 +184,12 @@ public class WalkBoardController {
     }
 
 
-    //산책메이트 신청 철회
+    /**
+     * 산책메이트 신청 철회
+     * @param walkMateId 산책게시글 ID
+     * @param userId 유저ID
+     * @return 산책게시글ID와 유저ID에 해당하는 산책게시글 상세 페이지 이동
+     */
     @GetMapping("/applyCancel/{walkMateId}/{userId}")
     public RedirectView applyCancel(
             @PathVariable("walkMateId") Long walkMateId,

@@ -33,7 +33,12 @@ public class AdminGoodsApiController {
     private final AdminGoodsService adminGoodsService;
     private final GoodsRepositoryCustom goodsRepositoryCustom;
 
-    //관리자 상품 목록
+    /**
+     *
+     * @param page page 변수
+     * @param searchForm 검색 카테고리, 키워드가 담겨져 있는 클래스
+     * @return 등록된 상품 목록
+     */
     @GetMapping("/goodsList/{page}")
     public ResponseEntity<Message> findGoodsList(
             @PathVariable("page") int page, SearchForm searchForm){
@@ -66,7 +71,14 @@ public class AdminGoodsApiController {
 
     }
 
-    //관리자 상품 문의 목록
+    /**
+     * 관리자 페이지 상품 관련 문의 목록
+     * @param page page 변수
+     * @param qnaState 해당 문의에 대한 관리자 답변 여부
+     * @param cate 검색 카테고리
+     * @param keyword 검색 키워드
+     * @return
+     */
     @GetMapping("/goodsQnaList/{page}")
     public Page<AdminGoodsQnaListDto> findGoodsQnaList(@PathVariable("page") int page,
                                                        String qnaState,
@@ -81,7 +93,14 @@ public class AdminGoodsApiController {
 
     }
 
-    //관리자 상품 상세 - 상품 관련 문의사항 리스트
+
+    /**
+     *
+     * @param goodsId 상품ID
+     * @param page page 변수
+     * @param state 상품 문의 답변 여부 확인
+     * @return 해당 상품 관련 문의 리스트
+     */
     @GetMapping("/goodsRelatedQna/{goodsId}/{page}")
     public Page<AdminGoodsQnaListDto> findGoodsDetailQnaList(
             @PathVariable("goodsId") Long goodsId,
@@ -94,7 +113,13 @@ public class AdminGoodsApiController {
 
     }
 
-    //관리자 상품 상세 - 상품 관련 리뷰 리스트
+    /**
+     *
+     * @param goodsId 상품ID
+     * @param page page 변수
+     * @param state 상품 리뷰 답변 여부 확인
+     * @return 해당 상품 관련 리뷰 리스트
+     */
     @GetMapping("/goodsRelatedReview/{goodsId}/{page}")
     public Page<AdminGoodsReview.AdminGoodsRelatedReview> findGoodsDetailReviewList(
             @PathVariable("goodsId") Long goodsId,
@@ -109,9 +134,10 @@ public class AdminGoodsApiController {
     }
 
 
-
-
-    //관리자 상품문의 답변 등록
+    /**
+     * 상품 문의 관리자 답변 등록
+     * @param goodsQueReplyForm 관리자 답변에 대한 정보가 담긴 form
+     */
     @PostMapping("/addQnaReply")
     public void addQnaReply(GoodsQueReplyForm goodsQueReplyForm){
 
@@ -120,7 +146,11 @@ public class AdminGoodsApiController {
 
     }
 
-    //관리자 상품문의 답변 가져오기
+    /**
+     * 상품 문의 관리자 답변 가져오기
+     * @param qnaId 상품문의ID
+     * @return 해당 문의사항에 대한 관리자 답변
+     */
     @GetMapping("/replyList/{qnaId}")
     public AdminGoodsQueReplyDto replyList(@PathVariable("qnaId") Long qnaId){
 
@@ -128,7 +158,10 @@ public class AdminGoodsApiController {
 
     }
 
-    //관리자 상품문의 답변 수정
+    /**
+     * 상품 문의 관리자 답변 수정
+     * @param goodsQueReplyForm 해당 문의사항에 관환 답변내용 수정 사항이 담긴 form
+     */
     @PatchMapping("/replyModify")
     public void replyModify(GoodsQueReplyForm goodsQueReplyForm){
 
@@ -137,7 +170,10 @@ public class AdminGoodsApiController {
 
     }
 
-    //관리자 상품문의 답변 삭제
+    /**
+     * 상품 문의 관리자 답변 삭제
+     * @param replyId 상품 문의 답변 ID
+     */
     @DeleteMapping("/replyDelete/{replyId}")
     public void replyDelete(@PathVariable("replyId") Long replyId){
 
@@ -145,12 +181,16 @@ public class AdminGoodsApiController {
     }
 
 
-    //관리자 상품 리뷰 리스트
+    /**
+     * 관리자 페이지 상품 리뷰 목록
+     * @param page 페이지 변수
+     * @param searchReviewForm 검색 카테고리, 키워드
+     * @return 상품 리뷰 목록
+     */
     @GetMapping("/goodsReviewList/{page}")
     public Page<AdminGoodsReview.AdminGoodsReviewList.AdminGoodsReviewResultList> goodsReviewList(@PathVariable("page") int page,
                                                                                                   SearchReviewForm searchReviewForm){
 
-        System.out.println(searchReviewForm.toString()+"!!!");
         Pageable pageable = PageRequest.of(page, 15);
 
         return adminGoodsService.reviewList(pageable, searchReviewForm);
@@ -162,8 +202,11 @@ public class AdminGoodsApiController {
     public AdminGoodsReview.AdminGoodsReviewDetail.AdminGoodsReviewResultDetail reviewDetail(@PathVariable("orderReviewId") Long orderReviewId){
         return adminGoodsService.reviewDetail(orderReviewId);
     }
-    
-    //관리자 상품 리뷰 답변 등록
+
+    /**
+     * 관리자 페이지 - 리뷰 -> 관리자 답변 등록
+     * @param goodsReviewReplyForm 관리자 답변 정보가 담긴 form
+     */
     @PostMapping("/addGoodsReviewReply")
     public void addGoodsReviewReply(GoodsReviewReplyForm goodsReviewReplyForm){
 
@@ -173,14 +216,22 @@ public class AdminGoodsApiController {
 
     }
 
-    //관리자 상품 리뷰 가져오기
+    /**
+     * 관리자 페이지 - 리뷰 -> 관리자 답변 조회
+     * @param orderReviewId 주문 리뷰ID
+     * @return 관리자 답변 정보
+     */
     @GetMapping("/goodsReviewReplyList/{orderReviewId}")
     public AdminGoodsReview.AdminGoodsReviewApply goodsReviewReply(@PathVariable("orderReviewId")Long orderReviewId){
 
         return adminGoodsService.goodsReviewReplyList(orderReviewId);
     }
 
-    //관리자 상품 리뷰 답변 삭제
+    /**
+     * 관리자 페이지 - 리뷰 -> 관리자 답변 삭제
+     * @param replyId 답변ID
+     * @param orderReviewId  주문리뷰ID
+     */
     @DeleteMapping("/deleteGoodsReviewReply/{replyId}/{orderReviewId}")
     public void deleteGoodsReviewReply(@PathVariable("replyId") Long replyId,
                                        @PathVariable("orderReviewId") Long orderReviewId){
@@ -189,7 +240,11 @@ public class AdminGoodsApiController {
 
     }
 
-    //관리자 상품 리뷰 답변 수정
+    /**
+     * 관리자 페이지 - 리뷰 -> 관리자 답변 수정
+     * @param modContent 수정된 답변 내용
+     * @param id 답변ID
+     */
     @PatchMapping("/modifyingGoodsReviewReply")
     public void modifyGoodsReviewReply(String modContent, Long id){
         GoodsReviewReplyForm form = new GoodsReviewReplyForm();

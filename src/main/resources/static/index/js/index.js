@@ -36,7 +36,7 @@ $(document).ready(function (){
 
 
 
-
+//상품 카테고리별 상품 목록
 function indexGoodsByCategoryList(cate, callback){
 
     $.ajax({
@@ -60,6 +60,7 @@ function indexGoodsByCategoryList(cate, callback){
     })
 
 }
+//상품 카테고리별 상품 목록 렌더링
 function goodsByCategory(result) {
     let categoryImages = {}; // 카테고리별 이미지를 저장할 객체
     let textInputSection = $('.shop-lists');

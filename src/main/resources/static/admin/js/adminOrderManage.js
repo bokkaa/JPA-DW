@@ -1,16 +1,18 @@
 import * as form from './module/form.js';
 
-
+//첫화면
 $(document).ready(function (){
-    orderByDay();
-    saleByCategory();
+    orderByDay(); //일별 주문량
 
-    orderMostList(renderOrderMostList)
+    saleByCategory(); //상품 카테고리별 판매 비중
+
+    orderMostList(renderOrderMostList) // 최다 주문 회원
 })
 
 
-
-
+/**
+ * 일별 주문량
+ */
 function orderByDay(){
 
     $.ajax({
@@ -68,7 +70,9 @@ function orderByDay(){
 }
 
 
-
+/**
+ * 상품 카테고리별 판매 비중
+ */
 function saleByCategory(){
 
     $.ajax({
@@ -140,6 +144,7 @@ function saleByCategory(){
 }
 
 
+//chart legend 설정
 let customLegend = function (chart) {
     let ul = document.createElement('ul');
     let color = chart.data.datasets[0].backgroundColor;
@@ -152,6 +157,10 @@ let customLegend = function (chart) {
 };
 
 
+/**
+ * 최다 주문 회원
+ * @param callback
+ */
 function orderMostList(callback){
 
     $.ajax({
@@ -172,6 +181,10 @@ function orderMostList(callback){
     })
 }
 
+/**
+ * 최다 주문 회원 리스트 렌더링
+ * @param result
+ */
 function renderOrderMostList(result){
 
     let text = '';

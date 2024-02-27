@@ -20,25 +20,53 @@ public class UsersService {
     private final UsersRepository usersRepository;
 
 
-    //아이디 중복체크
+    /**
+     * 회원 계정 중복 검사
+     * @param userAccount 희망하는 회원계정
+     * @return 가입 존재 여부 True or False
+     */
     @Transactional(readOnly = true)
     public boolean existsByUserAccount(String userAccount){
+
+        if (userAccount == null) {
+            throw new IllegalArgumentException("입력된 계정정보 없음");
+        }
+
         return usersRepository.existsByUserAccount(userAccount);
     }
 
-    //휴대폰 번호 중복체크
+    /**
+     * 회원 휴대전화 중복 검사
+     * @param userPhone 입력된 휴대전화 번호
+     * @return 가입 존재 여부 True or False
+     */
     @Transactional(readOnly = true)
     public boolean existsByUserPhone(String userPhone){
+
+        if (userPhone == null) {
+            throw new IllegalArgumentException("입력된 휴대전화번호 없음");
+        }
         return usersRepository.existsByUserPhone(userPhone);
     }
 
-    //이메일 중복 체크
+    /**
+     * 회원 이메일 중복 검사
+     * @param userEmail 입력된 이메일 주소
+     * @return 가입 존재 여부 True or False
+     */
     @Transactional(readOnly = true)
     public boolean existsByUserEmail(String userEmail){
+        if (userEmail == null) {
+            throw new IllegalArgumentException("입력된 이메일 정보 없음");
+        }
         return usersRepository.existsByUserEmail(userEmail);
     }
 
-    //회원가입
+    /**
+     * 회원가입
+     * @param joinForm 입력된 회원 가입 정보 form
+     * @return 가입 성공 시 해당 회원번호 반환
+     */
     @Transactional
     public Long join(JoinForm joinForm){
 
@@ -60,7 +88,12 @@ public class UsersService {
 //        return validatorResult;
 //    }
 
-    //로그인
+    /**
+     * 로그인
+     * @param userAccount 회원 계정
+     * @param userPassword 회원 계정 비밀번호
+     * @return 회원 정보
+     */
     @Transactional
     public Users login(String userAccount, String userPassword){
 
