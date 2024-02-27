@@ -273,107 +273,7 @@ public class AdminGoods extends AdminGoodsStan {
     // AdminOrderListDto 목록을 AdminOrderListResultDto로 변환하는 메서드
     private List<AdminOrderListResultDto> convertOrderList(List<AdminOrderListDto> orderList) {
 
-        //.collect stream()을 자료구조로 담을떄 사용
-        Map<Long, List<AdminOrderListDto>> groupedOrders = orderList.stream()
-                .collect(Collectors.groupingBy(AdminOrderListDto::getOrderListId));
-        //orderListId로 그룹화한다. 즉 Map의 Key값이 orderListId로 들어가게되며
-        //value값은 List<>모든 값들이 차례대로 들어간다.
-
-
-                            //맵을 뜯음                     //키값 기준으로 역순(내림차순으로 정렬)
-        return groupedOrders.entrySet().stream().sorted(Map.Entry.comparingByKey(Comparator.reverseOrder()))
-                .map(entry -> {
-                    Long orderListId = entry.getKey(); //Map의 key값
-                    LocalDateTime payDatetime = entry.getValue().stream().findFirst()
-                            .map(AdminOrderListDto::getOrderDate)
-                            .orElse(null); //findFirst()사용 시 예외처리나 null처리 필수
-                    List<AdminOrderListDto> orderListDtos = entry.getValue(); //Map의 value값
-
-
-                    List<AdminOrderItem> adminOrderItems = orderListDtos.stream()
-                            .map(dto -> new AdminOrderItem(
-                                    dto.getGoodsId(),
-                                    dto.getGoodsName(),
-                                    dto.getGoodsPrice(),
-                                    dto.getGoodsQuantity()
-                            ))
-                            .collect(Collectors.toList());
-
-
-
-                    AdminOrderInfo adminOrderInfo = orderListDtos.stream()
-                            .findFirst() // 중복되는 주문자 정보가 동일하다면 첫 번째 정보만 가져옴
-                            .map(dto -> new AdminOrderInfo(
-                                    dto.getOrderId(),
-                                    dto.getUserId(),
-                                    dto.getUserAccount(),
-                                    dto.getOrderZipcode(),
-                                    dto.getOrderAddress(),
-                                    dto.getOrderDetailAddress(),
-                                    dto.getOrderUserEmail(),
-                                    dto.getOrderUserName(),
-                                    dto.getOrderUserPhone(),
-                                    dto.getOrderDate(),
-                                    adminOrderItems // 주문 목록을 AdminOrderInfo 안에 포함
-                            ))
-                            .orElse(null);
-
-                    return new AdminOrderListResultDto(orderListId,payDatetime,adminOrderInfo);
-                })
-                .collect(Collectors.toList()); //리스트로 변환(Map에서 key값을 버리고 value값으로 리스트로 만든다.)
-    }
-
-private List<AdminOrderList.AdminOrdersListDto.AdminOrderListResultDto> convertOrderList(
-            List<AdminOrderList.AdminOrdersListDto> orderList) {
-
-
-        Map<Long, List<AdminOrderList.AdminOrdersListDto>> groupedOrders =
-                orderList.stream()
-                .collect(groupingBy(AdminOrderList.AdminOrdersListDto::getOrderListId));
-
-
-
-        return groupedOrders.entrySet().stream().sorted(Map.Entry.comparingByKey(Comparator.reverseOrder()))
-                .map(entry -> {
-
-                    Long orderListId = entry.getKey();
-
-                    LocalDateTime payDatetime = entry.getValue().stream().findFirst()
-                            .map(AdminOrderList.AdminOrdersListDto::getOrderDate)
-                            .orElse(null);
-
-                    List<AdminOrderList.AdminOrdersListDto> orderListDtos = entry.getValue();
-
-                    //주문당 구매한 상품은 여러 개일 수 있으므로 구매 상품만 List에 담아준다.
-                    List<AdminOrderList.AdminOrdersListDto.AdminOrderItem> adminOrderItems = orderListDtos.stream()
-                            .map(dto -> new AdminOrderList.AdminOrdersListDto.AdminOrderItem(
-                                    dto.getGoodsId(),
-                                    dto.getGoodsName(),
-                                    dto.getGoodsPrice(),
-                                    dto.getGoodsQuantity()
-                            ))
-                            .collect(Collectors.toList());
-
-                    AdminOrderList.AdminOrdersListDto.AdminOrderInfo adminOrderInfo = orderListDtos.stream()
-                            .findFirst() //중복 조회된 값은 하나로 처리한다.
-                            .map(dto -> new AdminOrderList.AdminOrdersListDto.AdminOrderInfo(
-                                    dto.getOrderId(),
-                                    dto.getUserId(),
-                                    dto.getUserAccount(),
-                                    dto.getOrderZipcode(),
-                                    dto.getOrderAddress(),
-                                    dto.getOrderDetailAddress(),
-                                    dto.getOrderUserEmail(),
-                                    dto.getOrderUserName(),
-                                    dto.getOrderUserPhone(),
-                                    dto.getOrderDate(),
-                                    adminOrderItems //주문한 상품리스트
-                            ))
-                            .orElse(null);
-
-                    return new AdminOrderList.AdminOrdersListDto.AdminOrderListResultDto(orderListId,payDatetime,adminOrderInfo);
-                })
-                .collect(Collectors.toList());
+       ....
     }
 
 
@@ -447,6 +347,12 @@ private List<AdminOrderList.AdminOrdersListDto.AdminOrderListResultDto> convertO
 
         return new PageImpl<>(convertOrderList(list), pageable, getTotal);
     }
+
+ private List<AdminOrderList.AdminOrdersListDto.AdminOrderListResultDto> convertOrderList(
+            List<AdminOrderList.AdminOrdersListDto> orderList) {
+
+...
+}
 
 ```
 
