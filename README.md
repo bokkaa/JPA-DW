@@ -45,7 +45,7 @@
 - 산책게시글 등록
 - 산책게시글 수정 및 삭제
   
-#### 관리자 페이지 <a href="https://github.com/dafssdf/Spring_Portfoilo/wiki/%EB%A7%88%EC%9D%B4-%ED%8E%98%EC%9D%B4%EC%A7%80" >상세보기 - WIKI 이동</a>
+#### 관리자 페이지 <a href="https://github.com/bokkaa/JPA-DW/wiki/%EA%B4%80%EB%A6%AC%EC%9E%90-%ED%8E%98%EC%9D%B4%EC%A7%80" >상세보기 - WIKI 이동</a>
 - 회원관리
 - 상품관리
 - 주문관리
