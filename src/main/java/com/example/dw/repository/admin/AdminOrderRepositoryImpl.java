@@ -321,7 +321,48 @@ public class AdminOrderRepositoryImpl implements AdminOrderRepositoryCustom{
                 .collect(groupingBy(AdminOrderList.AdminOrdersListDto::getOrderListId));
 
 
-
+//
+//        List<AdminOrderList.AdminOrdersListDto.AdminOrderListResultDto> rr = groupedOrders.entrySet().stream()
+//                .sorted(Map.Entry.comparingByKey(Comparator.reverseOrder()))
+//                .map(entry -> {
+//                    Long orderListId = entry.getKey();
+//
+//                    LocalDateTime dateTime = entry.getValue().stream().findFirst()
+//                            .map(AdminOrderList.AdminOrdersListDto::getOrderDate)
+//                            .get();
+//
+//                    List<AdminOrderList.AdminOrdersListDto> orderdto = entry.getValue();
+//
+//                    List<AdminOrderList.AdminOrdersListDto.AdminOrderItem> adminorder = orderdto.stream()
+//                            .map(dto -> new AdminOrderList.AdminOrdersListDto.AdminOrderItem(
+//                                    dto.getGoodsId(),
+//                                    dto.getGoodsName(),
+//                                    dto.getGoodsPrice(),
+//                                    dto.getGoodsQuantity()
+//                            )).collect(Collectors.toList());
+//
+//
+//                    AdminOrderList.AdminOrdersListDto.AdminOrderInfo info = orderdto.stream()
+//                            .findFirst().map(dto -> new AdminOrderList.AdminOrdersListDto.AdminOrderInfo(
+//                                    dto.getOrderId(),
+//                                    dto.getUserId(),
+//                                    dto.getUserAccount(),
+//                                    dto.getOrderZipcode(),
+//                                    dto.getOrderAddress(),
+//                                    dto.getOrderDetailAddress(),
+//                                    dto.getOrderUserEmail(),
+//                                    dto.getOrderUserName(),
+//                                    dto.getOrderUserPhone(),
+//                                    dto.getOrderDate(),
+//                                    adminorder
+//
+//                            )).get();
+//
+//                    return new AdminOrderList.AdminOrdersListDto.AdminOrderListResultDto(orderListId, dateTime, info);
+//
+//                })
+//                .collect(Collectors.toList());
+//
         return groupedOrders.entrySet().stream().sorted(Map.Entry.comparingByKey(Comparator.reverseOrder()))
                 .map(entry -> {
 
